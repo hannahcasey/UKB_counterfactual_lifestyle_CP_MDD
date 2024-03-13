@@ -232,12 +232,12 @@ for (exposure in exposures){
     ## Save results
     results_dataframe$exposure <- exposure
     results_dataframe$outcome <- outcome
-    assign(paste0(exposure,"_",outcome, "_full_CP_Dep_results"), results_dataframe)
+    assign(paste0(exposure,"_",outcome, "_full_CP_Dep_full_results"), results_dataframe)
   }
 }
 
 ## Compile results into single df
-CP_Dep_results <- mget(ls(pattern="full_CP_Dep_results")) %>%
+CP_Dep_full_results <- mget(ls(pattern="full_CP_Dep_results")) %>%
   bind_rows()
 
 #### Male and female samples ----
@@ -341,7 +341,7 @@ for (exposure in exposures){
 }
 
 ## Compile results into single df
-CPDep_results <- mget(ls(pattern="full_CPDep_results")) %>%
+CPDep_full_results <- mget(ls(pattern="full_CPDep_results")) %>%
   bind_rows()
 
 ## Recode to indicate comorbidity group
@@ -416,10 +416,10 @@ for (sex in c("male", "female")){
 
 ## Adjust for multiple comparisons ----
 ## Get n total comparisons
-n_comparisons <- (nrow(CPDep_results) + nrow(CP_Dep_results) * 3)
+n_comparisons <- (nrow(CPDep_results) + nrow(CP_Dep_full_results))
 
-CP_Dep_results$p_adjust <- p.adjust(CP_Dep_results$`P-value`, method = "bonferroni", n = n_comparisons)
-CPDep_results$p_adjust <- p.adjust(CPDep_results$`P-value`, method = "bonferroni", n = n_comparisons)
+CP_Dep_full_results$p_adjust <- p.adjust(CP_Dep_full_results$`P-value`, method = "bonferroni", n = n_comparisons)
+CPDep_full_results$p_adjust <- p.adjust(CPDep_full_results$`P-value`, method = "bonferroni", n = n_comparisons)
 
 CP_Dep_male_results$p_adjust <- p.adjust(CP_Dep_male_results$`P-value`, method = "bonferroni", n = n_comparisons)
 CPDep_male_results$p_adjust <- p.adjust(CPDep_male_results$`P-value`, method = "bonferroni", n = n_comparisons)

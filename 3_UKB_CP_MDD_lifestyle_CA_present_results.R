@@ -3,14 +3,16 @@ library(dplyr)
 library(ggh4x)
 
 ## Load in data and results ----
-CP_Dep_full_results <- read.csv("/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/CP_Dep_full_results.csv")
-CPDep_full_results <- read.csv("/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/CPDep_full_results.csv")
-data_eligible <- read.csv("/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/UKB_eligible.csv")
+CP_Dep_full_results <- read.csv("/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/CP_Dep_full_results.csv")
+CPDep_full_results <- read.csv("/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/CPDep_full_results.csv")
 
-CP_Dep_female_results <- CP_Dep_full_results
-CP_Dep_male_results <- CP_Dep_full_results
-CPDep_female_results <- CPDep_full_results
-CPDep_male_results <- CPDep_full_results
+CP_Dep_male_results <- read.csv("/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/CP_Dep_male_results.csv")
+CPDep_male_results <- read.csv("/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/CPDep_male_results.csv")
+
+CP_Dep_female_results <- read.csv("/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/CP_Dep_female_results.csv")
+CPDep_female_results <- read.csv("/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/CPDep_female_results.csv")
+
+data_eligible <- read.csv("/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/data/UKB_eligible.csv")
 
 ## Add column indicating sample
 CP_Dep_full_results$sample <- "Full"
@@ -123,9 +125,13 @@ CPDep_results <- CPDep_results %>%
                                             "Yes", "No"))
 
 ## Plot chronic pain and depression ----
+## Order exposures based on estimate in full sample
+CP_Dep_results$exposure <- reorder(CP_Dep_results$exposure, -CP_Dep_results$Coefficient.Estimate)
+CP_Dep_results$sample <- factor(CP_Dep_results$sample , levels = c("Full", "Female", "Male"))
+
 CP_Dep_results_plot <- ggplot(CP_Dep_results, aes(x=exposure, y=`Coefficient.Estimate`, shape=significant,colour=as.factor(outcome))) +
-  geom_point(aes(y=`Coefficient.Estimate`),size=3, alpha = 0.5, position = position_dodge(0.3)) +
-  geom_errorbar(aes(ymin=`Lower_95CI`, ymax=`Upper_95CI`), width=0, alpha = 0.5, position = position_dodge(0.3)) +
+  geom_point(aes(y=`Coefficient.Estimate`),size=3, position = position_dodge(0.3)) +
+  geom_errorbar(aes(ymin=`Lower_95CI`, ymax=`Upper_95CI`), width=0, position = position_dodge(0.3)) +
   theme_minimal() +
   theme(panel.spacing = unit(3, "lines")) + 
   geom_hline(yintercept=0, linetype="dashed", color = "black") +
@@ -139,9 +145,13 @@ CP_Dep_results_plot <- ggplot(CP_Dep_results, aes(x=exposure, y=`Coefficient.Est
 
 
 ## Plot comobidity groups
+## Order exposures based on estimate in full sample
+CPDep_results$exposure <- reorder(CPDep_results$exposure, -CPDep_results$Coefficient.Estimate)
+CPDep_results$sample <- factor(CPDep_results$sample , levels = c("Full", "Female", "Male"))
+
 CPDep_results_plot <- ggplot(CPDep_results, aes(x=exposure, y=`Coefficient.Estimate`, shape=significant,colour=as.factor(Term))) +
-  geom_point(aes(y=`Coefficient.Estimate`),size=3, alpha = 0.5, position = position_dodge(0.3)) +
-  geom_errorbar(aes(ymin=`Lower_95CI`, ymax=`Upper_95CI`), width=0, alpha = 0.5, position = position_dodge(0.3)) +
+  geom_point(aes(y=`Coefficient.Estimate`),size=3, position = position_dodge(0.3)) +
+  geom_errorbar(aes(ymin=`Lower_95CI`, ymax=`Upper_95CI`), width=0, position = position_dodge(0.3)) +
   theme_minimal() +
   theme(panel.spacing = unit(3, "lines")) + 
   geom_hline(yintercept=0, linetype="dashed", color = "black") +
@@ -163,3 +173,4 @@ dev.off()
 jpeg("/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/CPDep_results_plot.jpg", width = 700, height = 700)
 CPDep_results_plot
 dev.off()
+
