@@ -14,10 +14,10 @@ library(dplyr)
 set.seed(151097)
 
 ## Load in UKB data ----
-data <- read.csv("/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/UKB.csv")
-EOP_keep <- read.csv("/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/EOP_keep.csv")
-alcohol_exclude <- read.csv("/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/alcohol_exclude.csv")
-british_irish_keep <- read.csv("/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/british_irish_keep.csv")
+data <- read.csv("/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/data/UKB.csv")
+EOP_keep <- read.csv("/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/resources/EOP_keep.csv")
+alcohol_exclude <- read.csv("/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/resources/alcohol_exclude.csv")
+british_irish_keep <- read.csv("/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/resources/british_irish_keep.csv")
 
 data_na <- na.omit(data)
 cor(data_na$followup_depression, data_na$followup_chronic_pain)
@@ -69,7 +69,7 @@ connectGrob(UKB_pop, exclude_pop, "L")
 data_eligible <- data[data$f.eid %in% eligible_keep,]
 
 ## Save eligible data
-write.csv(data_eligible, "/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/UKB_eligible.csv", row.names = F)
+write.csv(data_eligible, "/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/data/UKB_eligible.csv", row.names = F)
 
 ### Convert comorbidity followup to numeric (required format for MI)
 data_eligible$comorbid_CPDep <- recode(data_eligible$comorbid_CPDep,
@@ -430,16 +430,16 @@ CPDep_female_results$p_adjust <- p.adjust(CPDep_female_results$`P-value`, method
 
 
 ## Save results ----
-write.csv(CP_Dep_full_results, "/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/CP_Dep_full_results.csv", row.names = F)
-write.csv(CPDep_full_results, "/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/CPDep_full_results.csv", row.names = F)
+write.csv(CP_Dep_full_results, "/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/CP_Dep_full_results.csv", row.names = F)
+write.csv(CPDep_full_results, "/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/CPDep_full_results.csv", row.names = F)
 
-write.csv(CP_Dep_male_results, "/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/CP_Dep_male_results.csv", row.names = F)
-write.csv(CPDep_male_results, "/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/CPDep_male_results.csv", row.names = F)
+write.csv(CP_Dep_male_results, "/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/CP_Dep_male_results.csv", row.names = F)
+write.csv(CPDep_male_results, "/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/CPDep_male_results.csv", row.names = F)
 
-write.csv(CP_Dep_female_results, "/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/CP_Dep_female_results.csv", row.names = F)
-write.csv(CPDep_female_results, "/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/CPDep_female_results.csv", row.names = F)
+write.csv(CP_Dep_female_results, "/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/CP_Dep_female_results.csv", row.names = F)
+write.csv(CPDep_female_results, "/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/CPDep_female_results.csv", row.names = F)
 
-write.csv(missingness_table, "/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/data_missingness.csv", row.names = T)
+write.csv(missingness_table, "/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/data_missingness.csv", row.names = T)
 
 
 

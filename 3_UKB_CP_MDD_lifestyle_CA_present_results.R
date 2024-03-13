@@ -123,7 +123,7 @@ CPDep_results <- CPDep_results %>%
                                             "Yes", "No"))
 
 ## Plot chronic pain and depression ----
-ggplot(CP_Dep_results, aes(x=exposure, y=`Coefficient.Estimate`, shape=significant,colour=as.factor(outcome))) +
+CP_Dep_results_plot <- ggplot(CP_Dep_results, aes(x=exposure, y=`Coefficient.Estimate`, shape=significant,colour=as.factor(outcome))) +
   geom_point(aes(y=`Coefficient.Estimate`),size=3, alpha = 0.5, position = position_dodge(0.3)) +
   geom_errorbar(aes(ymin=`Lower_95CI`, ymax=`Upper_95CI`), width=0, alpha = 0.5, position = position_dodge(0.3)) +
   theme_minimal() +
@@ -139,7 +139,7 @@ ggplot(CP_Dep_results, aes(x=exposure, y=`Coefficient.Estimate`, shape=significa
 
 
 ## Plot comobidity groups
-ggplot(CPDep_results, aes(x=exposure, y=`Coefficient.Estimate`, shape=significant,colour=as.factor(Term))) +
+CPDep_results_plot <- ggplot(CPDep_results, aes(x=exposure, y=`Coefficient.Estimate`, shape=significant,colour=as.factor(Term))) +
   geom_point(aes(y=`Coefficient.Estimate`),size=3, alpha = 0.5, position = position_dodge(0.3)) +
   geom_errorbar(aes(ymin=`Lower_95CI`, ymax=`Upper_95CI`), width=0, alpha = 0.5, position = position_dodge(0.3)) +
   theme_minimal() +
@@ -154,6 +154,12 @@ ggplot(CPDep_results, aes(x=exposure, y=`Coefficient.Estimate`, shape=significan
        shape = "Adjusted p-value < 0.05:")
 
 ## Save descriptive stats and results plots
-write.csv(descriptive_statistics, "/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/descriptive_statistics.csv", row.names = F)
+write.csv(descriptive_statistics, "/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/descriptive_statistics.csv", row.names = F)
 
+jpeg("/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/CP_Dep_results_plot.jpg", width = 700, height = 700)
+CP_Dep_results_plot
+dev.off()
 
+jpeg("/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/CPDep_results_plot.jpg", width = 700, height = 700)
+CPDep_results_plot
+dev.off()

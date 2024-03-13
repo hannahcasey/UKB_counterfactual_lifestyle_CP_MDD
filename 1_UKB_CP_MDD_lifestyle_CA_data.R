@@ -626,10 +626,10 @@ data$EOP_date <- as.Date(data$EOP_date)
 data <- data %>% mutate_all(~ifelse(is.nan(.), NA, .))
 
 ## Save file ---- 
-write.csv(data, "/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/UKB.csv", row.names = F)
-write.csv(EOP_keep, "/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/EOP_keep.csv", row.names = F)
-write.csv(alcohol_exclude, "/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/alcohol_exclude.csv", row.names = F)
-write.csv(british_irish_keep, "/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/british_irish_keep.csv", row.names = F)
+write.csv(data, "/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/data/UKB.csv", row.names = F)
+write.csv(EOP_keep, "/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/resources/EOP_keep.csv", row.names = F)
+write.csv(alcohol_exclude, "/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/resources/alcohol_exclude.csv", row.names = F)
+write.csv(british_irish_keep, "/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/resources/british_irish_keep.csv", row.names = F)
 
 
 
