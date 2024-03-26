@@ -16,6 +16,6 @@ Carry out statitical analysis (MI, propesnity score matching, marginal effects)
 Generate descriptive statistics of eligible UK Biobnak participants. 
 Plot main resutls - effect of lifestyle-related variables on chronic pain, depression and comorbidity in full, female and male sample.
 
-#### 4_UKB_CP_MDD_lifestyle_CA_supplementary.Rmd
+### 4_UKB_CP_MDD_lifestyle_CA_supplementary.Rmd
 
 Render supplementary material.
