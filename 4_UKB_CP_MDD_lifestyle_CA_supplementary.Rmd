@@ -1,0 +1,250 @@
+---
+title: "Impact of lifestyle in chronic pain and depression: a Propensity Score Analysis in UK Biobank Supplementary Material"
+output: 
+  word_document:
+    reference_docx: ~/Desktop/PhD/projects/UKB_CP_MDD_brain_structure/writeup/RMD_template.docx
+---
+
+```{r setup, include=FALSE}
+library(kableExtra)
+library(dplyr)
+library(flextable)
+library(stringr)
+library(tidyr)
+library(knitr)
+```
+
+# Table of contents:\
+
+## 1. Supplementary Results
+### 1.1. Balancing output
+### 1.2. Data missingness
+### 1.3. Results from main analysis
+
+
+
+\newpage
+# 1. Supplementary Results
+
+\n
+## 1.1. Balancing output
+
+```{r Balancing tables, echo=F, results='asis'}
+
+observation_table_files <- list.files(path = "/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/balancing/", pattern = "_observation_table.csv")
+
+bal_table_files <- list.files(path = "/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/balancing/", pattern = "bal_table")
+
+table_counter <- 0
+
+## Observation tables
+for (file in observation_table_files){
+  
+  table_counter <- table_counter + 1
+  
+  table <- read.csv(paste0("/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/balancing/", file ))
+  names(table) <- c("Sample", "Non-exposure", "Exposure")
+  
+  f <- flextable(table) %>%
+  autofit() %>%
+  fit_to_width(7) %>%
+  theme_booktabs()
+   
+  ## Get sample
+   if (grepl("female", file)){
+    sample <- "female sample"
+  } else if (grepl("male", file)) {
+    sample <- "male sample"
+  } else if (grepl("full", file)) {
+    sample <- "full sample"
+  }
+  
+  ## Get exposure
+  if (grepl("PA_low_", file)){
+   exposure <- "pysical activity" 
+  } else if (grepl("bad_sleep", file)){
+    exposure <- "bad sleep" 
+  } else if (grepl("high_alcohol_consumption", file)){
+    exposure <- "high alcohol consumption" 
+  } else if (grepl("smoking", file)){
+    exposure <- "smoking" 
+  } else if (grepl("obese", file)){
+    exposure <- "obese" 
+  } else if (grepl("lonely_", file)){
+    exposure <- "loneliness" 
+  } else if (grepl("unhealthy_diet", file)){
+    exposure <- "unhealthy diet" 
+  }
+  
+  flextable_to_rmd(f)
+  cat(paste0("Table S", table_counter, ". Observation table of ", exposure, " in ", sample))
+  cat("\n\n\n\n")
+  
+}
+
+## Balance tables
+for (file in bal_table_files){
+  
+  table_counter <- table_counter + 1
+  
+  table <- read.csv(paste0("/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/balancing/", file ))
+  names(table)[1] <- "Variables"
+  
+  ## Round numbers
+  table <- table %>% mutate_if(is.numeric, round, digits=3)
+  
+  f <- flextable(table) %>%
+  autofit() %>%
+  fit_to_width(7) %>%
+  theme_booktabs()
+   
+  ## Get sample
+   if (grepl("female", file)){
+    sample <- "female sample"
+  } else if (grepl("male", file)) {
+    sample <- "male sample"
+  } else if (grepl("full", file)) {
+    sample <- "full sample"
+  }
+  
+  ## Get exposure
+  if (grepl("PA_low_", file)){
+   exposure <- "pysical activity" 
+  } else if (grepl("bad_sleep", file)){
+    exposure <- "bad sleep" 
+  } else if (grepl("high_alcohol_consumption", file)){
+    exposure <- "high alcohol consumption" 
+  } else if (grepl("smoking", file)){
+    exposure <- "smoking" 
+  } else if (grepl("obese", file)){
+    exposure <- "obese" 
+  } else if (grepl("lonely_", file)){
+    exposure <- "loneliness" 
+  } else if (grepl("unhealthy_diet", file)){
+    exposure <- "unhealthy diet" 
+  }
+  
+  flextable_to_rmd(f)
+  cat(paste0("Table S", table_counter, ". Balance table of ", exposure, " in ", sample))
+  cat("\n\n\n\n")
+  
+}
+
+```
+
+
+```{r Balancing plots, echo=F, results='asis'}
+
+love_plot_paths <- list.files("/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/balancing",full.names = T, pattern = "love_plot")
+  
+figure_counter <- 0
+
+for (plot_path in love_plot_paths){
+
+  figure_counter <- figure_counter + 1
+
+  ## Get sample
+   if (grepl("female", file)){
+    sample <- "female sample"
+  } else if (grepl("male", file)) {
+    sample <- "male sample"
+  } else if (grepl("full", file)) {
+    sample <- "full sample"
+  }
+
+  ## Get exposure
+  if (grepl("PA_low_", file)){
+   exposure <- "pysical activity"
+  } else if (grepl("bad_sleep", file)){
+    exposure <- "bad sleep"
+  } else if (grepl("high_alcohol_consumption", file)){
+    exposure <- "high alcohol consumption"
+  } else if (grepl("smoking", file)){
+    exposure <- "smoking"
+  } else if (grepl("obese", file)){
+    exposure <- "obese"
+  } else if (grepl("lonely_", file)){
+    exposure <- "loneliness"
+  } else if (grepl("unhealthy_diet", file)){
+    exposure <- "unhealthy diet"
+  }
+  
+  cat("<center>")
+  cat("\n")
+  cat(paste0("![](", plot_path, "){height=50% width=50% }"))
+  cat("\n")
+  cat("<center>")
+  cat(paste0("Table S", table_counter, ". Love plot of ", exposure, " in ", sample))
+  cat("\n")
+}
+```
+
+\newpage
+## 1.2. Data Missingness
+
+```{r data missingness, echo=F, results='asis'}
+data_missingness <- read.csv("/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/data_missingness.csv")
+
+names(data_missingness) <- c("Variable", "Missingness (%)")
+f <- flextable(data_missingness) %>%
+autofit() %>%
+fit_to_width(7) %>%
+theme_booktabs()
+
+flextable_to_rmd(f)
+table_counter <- table_counter + 1
+cat(paste0("Table S", table_counter, ". Data missingness in full eligible sample"))
+
+```
+
+
+\newpage
+## 1.3. Full results from main analysis
+
+```{r Results, echo=F, results='asis'}
+
+results_table_files <- list.files(path = "/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/", pattern = "results.csv")
+
+## Observation tables
+for (file in results_table_files){
+  
+  table_counter <- table_counter + 1
+  
+  table <- read.csv(paste0("/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/", file ))
+
+  ## Round numbers
+  table <- table %>% mutate_if(is.numeric, round, digits=3)
+  
+  f <- flextable(table) %>%
+  autofit() %>%
+  fit_to_width(7) %>%
+  theme_booktabs()
+   
+  ## Get sample
+   if (grepl("female", file)){
+    sample <- "female sample"
+  } else if (grepl("male", file)) {
+    sample <- "male sample"
+  } else if (grepl("full", file)) {
+    sample <- "full sample"
+  }
+  
+    ## Get outcome
+   if (grepl("CP_Dep_", file)){
+    outcome <- "chronic pain and depression"
+  } else if (grepl("CPDep_", file)) {
+    sample <- "comorbid chronic pain and depression groups"
+  }
+  
+  
+  flextable_to_rmd(f)
+  cat(paste0("Table S", table_counter, ". Effect of lifesyle-related variables in ", outcome, " in ", sample))
+  cat("\n\n\n\n")
+  
+}
+
+
+```
+
+
+

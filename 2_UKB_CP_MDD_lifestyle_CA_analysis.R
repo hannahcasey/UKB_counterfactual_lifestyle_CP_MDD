@@ -1,7 +1,3 @@
-#install.packages("Gmisc")
-library(Gmisc, quietly = TRUE) 
-library(glue)
-library(grid)
 library(nnet)
 library(lubridate)
 library(mice)
@@ -19,54 +15,12 @@ EOP_keep <- read.csv("/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifesty
 alcohol_exclude <- read.csv("/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/resources/alcohol_exclude.csv")
 british_irish_keep <- read.csv("/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/resources/british_irish_keep.csv")
 
-data_na <- na.omit(data)
-cor(data_na$followup_depression, data_na$followup_chronic_pain)
-
-## Sample flow chart ----
-## Get overlap of participants with EOP data who also drink and are british/irish
-EOP_alcohol_keep <- EOP_keep$x[!EOP_keep$x %in% alcohol_exclude$x]
-eligible_keep <- EOP_alcohol_keep[EOP_alcohol_keep %in% british_irish_keep$x]
-
-UKB_pop <- boxGrob(glue("UK Biobank Sample",
-             "n = {pop}",
-             pop = txtInt(nrow(data)),
-             .sep = "\n"), 
-        y = 0.75, x = 0.5, bjust = c(0.5, 0.5),
-        just = "centre")
-
-eligible_pop <- boxGrob(glue("Eligible",
-         "n = {pop}",
-         pop = txtInt(length(eligible_keep)),
-         .sep = "\n"), 
-         y = 0.25, x = 0.5, bjust = c(0.5, 0.5),
-        just = "centre")
-
-
-exclude_pop <- boxGrob(glue("Excluded (n = {tot}):",
-             " - No EOP: {no_EOP}",
-             " - Non-drinker (in EOP sample): {non_drinker}",
-             " - Non-British/Irish (in EOP drinker sample): {non_british_irish}",
-             tot = txtInt(nrow(data) - length(eligible_keep)),
-             no_EOP = txtInt(nrow(data) - nrow(EOP_keep)),
-             non_drinker = txtInt(nrow(EOP_keep) - length(EOP_alcohol_keep)),
-             non_british_irish = txtInt((length(EOP_alcohol_keep) - length(eligible_keep))),
-             .sep = "\n"), 
-        y = 0.5, x = 0.75, bjust = c(0.5, 0.5),
-        just = "left")
-
-grid.newpage()
-
-UKB_pop
-eligible_pop
-exclude_pop
-
-connectGrob(UKB_pop, eligible_pop, "N")
-connectGrob(UKB_pop, exclude_pop, "L")
 
 ## Data Prep ----
 ### Remove ineligible ----
 ## Remove ineligible participants from analysis
-data_eligible <- data[data$f.eid %in% eligible_keep,]
+data_british_irish_EOP <- data[data$f.eid %in% intersect(british_irish_keep$x, EOP_keep$x),]
+data_eligible <- data_british_irish_EOP[!data_british_irish_EOP$f.eid %in% alcohol_exclude$x,]
 
 ## Save eligible data
 write.csv(data_eligible, "/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/data/UKB_eligible.csv", row.names = F)
@@ -111,11 +65,11 @@ names(missingness_table) <- "missingness (%)"
 ## Impute datasets in full dataset and sex-stratified datasets
 ## Number of imputations based on highest missingness percentage - 32% (unhealthy diet)
 ### Full sample ----
-data_eligible_full_imputed <- mice(data_eligible, m = 5, maxit = 20, method = "rf")
+data_eligible_full_imputed <- mice(data_eligible, m = 32, maxit = 20, method = "rf")
 ### Male sample ----
-data_eligible_males_imputed <- mice(subset(data_eligible, sex == 0), m = 5, maxit = 20, method = "rf")
+data_eligible_males_imputed <- mice(subset(data_eligible, sex == 0), m = 32, maxit = 20, method = "rf")
 ### Female sample ----
-data_eligible_females_imputed <- mice(subset(data_eligible, sex == 1), m = 5, maxit = 20, method = "rf")
+data_eligible_females_imputed <- mice(subset(data_eligible, sex == 1), m = 32, maxit = 20, method = "rf")
 
 ## Balance datasets ----
 ### Full sample ----
@@ -237,7 +191,7 @@ for (exposure in exposures){
 }
 
 ## Compile results into single df
-CP_Dep_full_results <- mget(ls(pattern="full_CP_Dep_results")) %>%
+CP_Dep_full_results <- mget(ls(pattern="_full_CP_Dep_full_results")) %>%
   bind_rows()
 
 #### Male and female samples ----
@@ -319,13 +273,11 @@ for (exposure in exposures){
     model_fit = marginaleffects::avg_comparisons(
       fit,newdata = subset(extracted_balanced_data[[imputation]],
                            get(exposure) == 1),
-      variables = exposure,
-      hypothesis = c("b2 - b1 = 0", ## CP-Dep- VS CP+Dep-
-                     "b3 - b1 = 0", ## CP-Dep- VS CP-Dep+
-                     "b4 - b1 = 0"))  ## CP-Dep- VS CP+Dep+
+      variables = exposure)
     
     model_fits[[imputation]] <- model_fit
     
+    model_fits[[imputation]]$term <- model_fits[[imputation]]$group ## Otherwise comorbidity groups are combined when results pooled
   }
   
   ## Pool results over imputations
@@ -345,10 +297,11 @@ CPDep_full_results <- mget(ls(pattern="full_CPDep_results")) %>%
   bind_rows()
 
 ## Recode to indicate comorbidity group
-CPDep_results$Term <- recode(CPDep_results$Term,
-       "b2-b1=0" = "CP+Dep-",
-       "b3-b1=0" = "CP-Dep+",
-       "b4-b1=0" = "CP+Dep+")
+CPDep_full_results$Term <- recode(CPDep_full_results$Term,
+       `0` = "CP-Dep-",
+       `1` = "CP+Dep-",
+       `2` = "CP-Dep+",
+       `3` = "CP+Dep+")
 
 #### Male and females samples----
 for (sex in c("male", "female")){
@@ -381,12 +334,10 @@ for (sex in c("male", "female")){
       model_fit = marginaleffects::avg_comparisons(
         fit,newdata = subset(extracted_balanced_data[[imputation]],
                              get(exposure) == 1),
-        variables = exposure,
-        hypothesis = c("b2 - b1 = 0", ## CP-Dep- VS CP+Dep-
-                       "b3 - b1 = 0", ## CP-Dep- VS CP-Dep+
-                       "b4 - b1 = 0"))  ## CP-Dep- VS CP+Dep+
+        variables = exposure)
       
       model_fits[[imputation]] <- model_fit
+      model_fits[[imputation]]$term <- model_fits[[imputation]]$group ## Otherwise comorbidity groups are combined when results pooled
       
     }
     
@@ -399,9 +350,11 @@ for (sex in c("male", "female")){
     colnames(results_dataframe) <- c("Term","Coefficient Estimate", "Standard Error", "P-value", "Lower_95CI", "Upper_95CI")
     ## Recode to indicate comorbidity group
     results_dataframe$Term <- recode(results_dataframe$Term,
-                                 "b2-b1=0" = "CP+Dep-",
-                                 "b3-b1=0" = "CP-Dep+",
-                                 "b4-b1=0" = "CP+Dep+")
+                                     `0` = "CP-Dep-",
+                                     `1` = "CP+Dep-",
+                                     `2` = "CP-Dep+",
+                                     `3` = "CP+Dep+")
+    
     ## Save results
     results_dataframe$exposure <- exposure
     assign(paste0(exposure, "_", sex, "_CPDep_results"), results_dataframe)
@@ -416,7 +369,7 @@ for (sex in c("male", "female")){
 
 ## Adjust for multiple comparisons ----
 ## Get n total comparisons
-n_comparisons <- (nrow(CPDep_results) + nrow(CP_Dep_full_results))
+n_comparisons <- (nrow(CPDep_full_results) + nrow(CP_Dep_full_results))
 
 CP_Dep_full_results$p_adjust <- p.adjust(CP_Dep_full_results$`P-value`, method = "bonferroni", n = n_comparisons)
 CPDep_full_results$p_adjust <- p.adjust(CPDep_full_results$`P-value`, method = "bonferroni", n = n_comparisons)
@@ -441,5 +394,13 @@ write.csv(CPDep_female_results, "/Volumes/GenScotDepression/users/hcasey/UKB_CP_
 
 write.csv(missingness_table, "/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/data_missingness.csv", row.names = T)
 
+for (plot in ls(pattern="love_plot")){
+  
+  jpeg(file = paste0("/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/balancing/", plot, ".jpg"), width = 700, height = 700)
+  print(get(plot))
+  dev.off()
+}
 
-
+for (table in ls(pattern="bal_table|observation_table")){
+  write.csv(get(table), paste0("/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/balancing/", table, ".csv"))
+}

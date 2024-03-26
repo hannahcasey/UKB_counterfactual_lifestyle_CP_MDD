@@ -47,3 +47,5 @@ po/*~
 
 # RStudio Connect folder
 rsconnect/
+.DS_Store
+4_UKB_CP_MDD_lifestyle_CA_supplementary.docx
