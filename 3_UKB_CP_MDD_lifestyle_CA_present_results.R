@@ -360,11 +360,11 @@ CPDep_results_plot <- ggplot(CPDep_results, aes(x=exposure, y=`Coefficient.Estim
 ## Save descriptive stats and results plots ----
 write.csv(descriptive_statistics, "/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/descriptive_statistics.csv", row.names = F)
 
-jpeg("/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/CP_Dep_results_plot.jpg", width = 700, height = 700)
+jpeg("/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/CP_Dep_results_plot.jpg", width=30,height=20,units="cm",res=1000)
 CP_Dep_results_plot
 dev.off()
 
-jpeg("/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/CPDep_results_plot.jpg", width = 700, height = 700)
+jpeg("/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/CPDep_results_plot.jpg",width=30,height=20,units="cm",res=1000)
 CPDep_results_plot
 dev.off()
 
