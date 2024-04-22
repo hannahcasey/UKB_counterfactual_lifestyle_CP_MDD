@@ -45,7 +45,7 @@ for (observation_table in sort(observation_table_files)){
     exposure <- "Pysical activity" 
     box_name <- "low_PA_box" 
   } else if (grepl("bad_sleep", observation_table)){
-    exposure <- "Bad Sleep" 
+    exposure <- "Aberrant sleep duration" 
     box_name <- "bad_sleep_box" 
   } else if (grepl("high_alcohol_consumption", observation_table)){
     exposure <- "High Alcohol Consumption" 
@@ -107,18 +107,18 @@ for (observation_table in sort(observation_table_files)){
                             "Male sample exposed/unexposed:",
                             "Unmatched: {male_n_unmatched_exposed}/{male_n_unmatched_unexposed}",
                             "Matched: {male_n_matched_exposed}/{male_n_matched_unexposed}",
-                            full_n_unmatched_exposed = full_n_unmatched_exposed,
-                            full_n_unmatched_unexposed = full_n_unmatched_unexposed,
-                            full_n_matched_exposed = full_n_matched_exposed, 
-                            full_n_matched_unexposed = full_n_matched_unexposed,
-                            female_n_unmatched_exposed = female_n_unmatched_exposed,
-                            female_n_unmatched_unexposed = female_n_unmatched_unexposed,
-                            female_n_matched_exposed = female_n_matched_exposed, 
-                            female_n_matched_unexposed = female_n_matched_unexposed,
-                            male_n_unmatched_exposed = male_n_unmatched_exposed,
-                            male_n_unmatched_unexposed = male_n_unmatched_unexposed,
-                            male_n_matched_exposed = male_n_matched_exposed, 
-                            male_n_matched_unexposed = male_n_matched_unexposed,
+                            full_n_unmatched_exposed = round(full_n_unmatched_exposed, 2),
+                            full_n_unmatched_unexposed = round(full_n_unmatched_unexposed, 2),
+                            full_n_matched_exposed = round(full_n_matched_exposed, 2),
+                            full_n_matched_unexposed = round(full_n_matched_unexposed, 2),
+                            female_n_unmatched_exposed = round(female_n_unmatched_exposed, 2),
+                            female_n_unmatched_unexposed = round(female_n_unmatched_unexposed, 2),
+                            female_n_matched_exposed = round(female_n_matched_exposed, 2),
+                            female_n_matched_unexposed = round(female_n_matched_unexposed, 2),
+                            male_n_unmatched_exposed = round(male_n_unmatched_exposed, 2),
+                            male_n_unmatched_unexposed = round(male_n_unmatched_unexposed, 2),
+                            male_n_matched_exposed = round(male_n_matched_exposed, 2),
+                            male_n_matched_unexposed = round(male_n_matched_unexposed, 2),
                             .sep = "\n"), 
                        y = y_coord, x = x_coord, bjust = c(0.5, 0.5),
                        just = "left",
@@ -198,7 +198,7 @@ CP_Dep_results <- do.call("rbind", list(CP_Dep_full_results, CP_Dep_female_resul
 CPDep_results <- do.call("rbind", list(CPDep_full_results, CPDep_female_results, CPDep_male_results))
 
 CP_Dep_results$exposure <- recode(CP_Dep_results$exposure,
-                                  "bad_sleep" = "Aberant sleep duration",
+                                  "bad_sleep" = "Aberrant sleep duration",
                                   "high_alcohol_consumption" = "High alcohol consumption",
                                   "lonely" = "Loneliness",
                                   "obese" = "Obesity",
@@ -208,7 +208,7 @@ CP_Dep_results$exposure <- recode(CP_Dep_results$exposure,
 
 
 CPDep_results$exposure <- recode(CPDep_results$exposure,
-                                  "bad_sleep" = "Aberant sleep duration",
+                                  "bad_sleep" = "Aberrant sleep duration",
                                   "high_alcohol_consumption" = "High alcohol consumption",
                                   "lonely" = "Loneliness",
                                   "obese" = "Obesity",
@@ -325,7 +325,10 @@ CP_Dep_results_plot <- ggplot(CP_Dep_results, aes(x=exposure, y=`Coefficient.Est
   geom_point(aes(y=`Coefficient.Estimate`),size=3, position = position_dodge(0.3)) +
   geom_errorbar(aes(ymin=`Lower_95CI`, ymax=`Upper_95CI`), width=0, position = position_dodge(0.3)) +
   theme_minimal() +
-  theme(panel.spacing = unit(3, "lines"), text = element_text(size = 15)) + 
+  theme(panel.spacing = unit(3, "lines"), 
+        text = element_text(size = 15),
+        legend.title = element_text(size = 12),
+        legend.text = element_text(size = 10)) + 
   geom_hline(yintercept=0, linetype="dashed", color = "black") +
   coord_flip() +
   facet_wrap2(vars(sample)) +
@@ -333,21 +336,24 @@ CP_Dep_results_plot <- ggplot(CP_Dep_results, aes(x=exposure, y=`Coefficient.Est
        y = "Coefficient Estimate",
        title = "",
        colour = "Outcome:",
-       shape = "Adjusted p-value < 0.05:")
+       shape = expression("P"[Adjusted] ~ " < 0.05:"))
 
 
 ## Plot comobidity groups
 ## Order exposures based on estimate in full sample
 CPDep_results$exposure <- factor(as.character(CPDep_results$exposure), levels = c("Low physical activity", "Unhealthy diet",
                                                                                   "High alcohol consumption", "Smoking status",
-                                                                                  "Loneliness", "Aberant sleep duration", "Obesity"))
+                                                                                  "Loneliness", "Aberrant sleep duration", "Obesity"))
 CPDep_results$sample <- factor(CPDep_results$sample , levels = c("Full", "Female", "Male"))
 
 CPDep_results_plot <- ggplot(CPDep_results, aes(x=exposure, y=`Coefficient.Estimate`, shape=significant,colour=as.factor(Term))) +
   geom_point(aes(y=`Coefficient.Estimate`),size=3, position = position_dodge(0.3)) +
   geom_errorbar(aes(ymin=`Lower_95CI`, ymax=`Upper_95CI`), width=0, position = position_dodge(0.3)) +
   theme_minimal() +
-  theme(panel.spacing = unit(3, "lines"), text = element_text(size = 15)) + 
+  theme(panel.spacing = unit(3, "lines"), 
+        text = element_text(size = 15),
+        legend.title = element_text(size = 12),
+        legend.text = element_text(size = 10)) + 
   geom_hline(yintercept=0, linetype="dashed", color = "black") +
   coord_flip() +
   facet_wrap2(vars(sample)) +
@@ -355,7 +361,8 @@ CPDep_results_plot <- ggplot(CPDep_results, aes(x=exposure, y=`Coefficient.Estim
        y = "Coefficient Estimate",
        title = "",
        colour = "Outcome:",
-       shape = "Adjusted p-value < 0.05:")
+       shape = expression("P"[Adjusted] ~ " < 0.05:"))
+
 
 ## Save descriptive stats and results plots ----
 write.csv(descriptive_statistics, "/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/descriptive_statistics.csv", row.names = F)
