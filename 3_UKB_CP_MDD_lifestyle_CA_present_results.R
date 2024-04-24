@@ -27,7 +27,7 @@ observation_table_files <- list.files(path = "/Volumes/GenScotDepression/users/h
 x_coord <- 0.1
 box_position <- "up"
 
-for (observation_table in sort(observation_table_files)){
+for (observation_table in sort(observation_table_files[!grepl("sensitivity_PA_low", observation_table_files)])){
   
   table <- read.csv(paste0("/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/balancing/", observation_table ))
   
@@ -321,7 +321,7 @@ CPDep_results <- CPDep_results %>%
 CP_Dep_results$exposure <- reorder(CP_Dep_results$exposure, -CP_Dep_results$Coefficient.Estimate)
 CP_Dep_results$sample <- factor(CP_Dep_results$sample , levels = c("Full", "Female", "Male"))
 
-CP_Dep_results_plot <- ggplot(CP_Dep_results, aes(x=exposure, y=`Coefficient.Estimate`, shape=significant,colour=as.factor(outcome))) +
+CP_Dep_results_plot <- ggplot(CP_Dep_results[CP_Dep_results$exposure != "sensitivity_PA_low",], aes(x=exposure, y=`Coefficient.Estimate`, shape=significant,colour=as.factor(outcome))) +
   geom_point(aes(y=`Coefficient.Estimate`),size=3, position = position_dodge(0.3)) +
   geom_errorbar(aes(ymin=`Lower_95CI`, ymax=`Upper_95CI`), width=0, position = position_dodge(0.3)) +
   theme_minimal() +
@@ -343,10 +343,10 @@ CP_Dep_results_plot <- ggplot(CP_Dep_results, aes(x=exposure, y=`Coefficient.Est
 ## Order exposures based on estimate in full sample
 CPDep_results$exposure <- factor(as.character(CPDep_results$exposure), levels = c("Low physical activity", "Unhealthy diet",
                                                                                   "High alcohol consumption", "Smoking status",
-                                                                                  "Loneliness", "Aberrant sleep duration", "Obesity"))
+                                                                                  "Loneliness", "Aberrant sleep duration", "Obesity", "sensitivity_PA_low"))
 CPDep_results$sample <- factor(CPDep_results$sample , levels = c("Full", "Female", "Male"))
 
-CPDep_results_plot <- ggplot(CPDep_results, aes(x=exposure, y=`Coefficient.Estimate`, shape=significant,colour=as.factor(Term))) +
+CPDep_results_plot <- ggplot(CPDep_results[CPDep_results$exposure != "sensitivity_PA_low",], aes(x=exposure, y=`Coefficient.Estimate`, shape=significant,colour=as.factor(Term))) +
   geom_point(aes(y=`Coefficient.Estimate`),size=3, position = position_dodge(0.3)) +
   geom_errorbar(aes(ymin=`Lower_95CI`, ymax=`Upper_95CI`), width=0, position = position_dodge(0.3)) +
   theme_minimal() +
@@ -363,6 +363,41 @@ CPDep_results_plot <- ggplot(CPDep_results, aes(x=exposure, y=`Coefficient.Estim
        colour = "Outcome:",
        shape = expression("P"[Adjusted] ~ " < 0.05:"))
 
+## Plot sensitivity ----
+CP_Dep_results_sensitivity_plot <- ggplot(CP_Dep_results[grepl("PA_low|Low physical activity", CP_Dep_results$exposure),], aes(x=exposure, y=`Coefficient.Estimate`, shape=significant,colour=as.factor(outcome))) +
+  geom_point(aes(y=`Coefficient.Estimate`),size=3, position = position_dodge(0.3)) +
+  geom_errorbar(aes(ymin=`Lower_95CI`, ymax=`Upper_95CI`), width=0, position = position_dodge(0.3)) +
+  theme_minimal() +
+  theme(panel.spacing = unit(3, "lines"), 
+        text = element_text(size = 15),
+        legend.title = element_text(size = 12),
+        legend.text = element_text(size = 10)) + 
+  geom_hline(yintercept=0, linetype="dashed", color = "black") +
+  coord_flip() +
+  facet_wrap2(vars(sample)) +
+  labs(x = "",
+       y = "Coefficient Estimate",
+       title = "",
+       colour = "Outcome:",
+       shape = expression("P"[Adjusted] ~ " < 0.05:"))
+
+
+CPDep_results_sensitivity_plot <- ggplot(CPDep_results[grepl("PA_low|Low physical activity", CPDep_results$exposure),], aes(x=exposure, y=`Coefficient.Estimate`, shape=significant,colour=as.factor(Term))) +
+  geom_point(aes(y=`Coefficient.Estimate`),size=3, position = position_dodge(0.3)) +
+  geom_errorbar(aes(ymin=`Lower_95CI`, ymax=`Upper_95CI`), width=0, position = position_dodge(0.3)) +
+  theme_minimal() +
+  theme(panel.spacing = unit(3, "lines"), 
+        text = element_text(size = 15),
+        legend.title = element_text(size = 12),
+        legend.text = element_text(size = 10)) + 
+  geom_hline(yintercept=0, linetype="dashed", color = "black") +
+  coord_flip() +
+  facet_wrap2(vars(sample)) +
+  labs(x = "",
+       y = "Coefficient Estimate",
+       title = "",
+       colour = "Outcome:",
+       shape = expression("P"[Adjusted] ~ " < 0.05:"))
 
 ## Save descriptive stats and results plots ----
 write.csv(descriptive_statistics, "/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/descriptive_statistics.csv", row.names = F)
