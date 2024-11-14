@@ -24,7 +24,9 @@ british_irish_keep <- read.csv("/Volumes/GenScotDepression/users/hcasey/UKB_CP_M
 
 ## Load in observation tables
 observation_table_files <- list.files(path = "/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/balancing/", pattern = "observation_table")
-x_coord <- 0.1
+x_coord_up <- 0.1
+x_coord_middle <- 0.2
+x_coord_down <- 0.1
 box_position <- "up"
 
 for (observation_table in sort(observation_table_files[!grepl("sensitivity_PA_low", observation_table_files)])){
@@ -44,9 +46,12 @@ for (observation_table in sort(observation_table_files[!grepl("sensitivity_PA_lo
   if (grepl("PA_low_", observation_table)){
     exposure <- "Pysical activity" 
     box_name <- "low_PA_box" 
-  } else if (grepl("bad_sleep", observation_table)){
-    exposure <- "Aberrant sleep duration" 
-    box_name <- "bad_sleep_box" 
+  } else if (grepl("too_much_sleep", observation_table)){
+    exposure <- "Too Much Sleep" 
+    box_name <- "too_much_sleep_box" 
+  } else if (grepl("too_little_sleep", observation_table)){
+    exposure <- "Too Little Sleep" 
+    box_name <- "too_little_sleep_box" 
   } else if (grepl("high_alcohol_consumption", observation_table)){
     exposure <- "High Alcohol Consumption" 
     box_name <- "high_alcohol_consumption_box" 
@@ -84,14 +89,22 @@ for (observation_table in sort(observation_table_files[!grepl("sensitivity_PA_lo
   
   if  (grepl("_male", observation_table)){ ## Male sample observation table read last for each exposure, only run when all tables have been read
     ## Create info flowchart box for each exposure with unmateched and matched sample sizes 
-    x_coord <- x_coord + 0.1 ## Shift each box further right
     
     if (box_position == "up"){
-      y_coord <- 0.45
+      x_coord_up <- x_coord_up + 0.2
+      x_coord <- x_coord_up
+      y_coord <- 0.65
       box_position <- "down"
     } else if (box_position == "down"){
-      box_position <- "up"
+      x_coord_down <- x_coord_down + 0.2
+      x_coord <- x_coord_down
+      box_position <- "middle"
       y_coord <- 0.15
+    } else if (box_position == "middle"){
+      x_coord_middle <- x_coord_middle + 0.2
+      x_coord <- x_coord_middle
+      box_position <- "up"
+      y_coord <- 0.4
     }
     
     assign(box_name, boxGrob(glue(paste(exposure, "Sample Size"),
@@ -136,14 +149,14 @@ UKB_pop <- boxGrob(glue("UK Biobank Sample",
                         "n = {pop}",
                         pop = txtInt(nrow(data)),
                         .sep = "\n"), 
-                   y = 0.9, x = 0.5, bjust = c(0.5, 0.5),
+                   y = 0.95, x = 0.5, bjust = c(0.5, 0.5),
                    just = "centre")
 
 eligible_pop <- boxGrob(glue("Eligible",
                              "n = {pop}",
                              pop = txtInt(length(eligible_keep)),
                              .sep = "\n"), 
-                        y = 0.7, x = 0.5, bjust = c(0.5, 0.5),
+                        y = 0.85, x = 0.5, bjust = c(0.5, 0.5),
                         just = "centre")
 
 exclude_pop <- boxGrob(glue("Excluded (n = {tot}):",
@@ -155,7 +168,7 @@ exclude_pop <- boxGrob(glue("Excluded (n = {tot}):",
                             non_drinker = txtInt(nrow(EOP_keep) - length(EOP_alcohol_keep)),
                             non_british_irish = txtInt((length(EOP_alcohol_keep) - length(eligible_keep))),
                             .sep = "\n"), 
-                       y = 0.8, x = 0.75, bjust = c(0.5, 0.5),
+                       y = 0.90, x = 0.75, bjust = c(0.5, 0.5),
                        just = "left")
 
 grid.newpage()
@@ -169,17 +182,18 @@ low_PA_box
 smoking_box
 high_alcohol_consumption_box
 unhealthy_diet_box
-bad_sleep_box
+too_much_sleep_box
+too_little_sleep_box
 obese_box
 
-connectGrob(UKB_pop, eligible_pop, "N")
-connectGrob(UKB_pop, exclude_pop, "L")
-
-connectGrob(eligible_pop, loneliness_box, "N")
-connectGrob(eligible_pop, obese_box, "N")
-connectGrob(eligible_pop, bad_sleep_box, "N")
-connectGrob(eligible_pop, low_PA_box, "N")
-connectGrob(eligible_pop, unhealthy_diet_box, "N")
+# connectGrob(UKB_pop, eligible_pop, "N")
+# connectGrob(UKB_pop, exclude_pop, "L")
+# connectGrob(eligible_pop, loneliness_box, "N")
+# connectGrob(eligible_pop, obese_box, "N")
+# connectGrob(eligible_pop, too_much_sleep_box, "N")
+# connectGrob(eligible_pop, too_little_sleep_box, "N")
+# connectGrob(eligible_pop, low_PA_box, "N")
+# connectGrob(eligible_pop, unhealthy_diet_box, "N")
 # connectGrob(eligible_pop, smoking_box, "N")
 # connectGrob(eligible_pop, high_alcohol_consumption_box, "N")
 
@@ -198,7 +212,8 @@ CP_Dep_results <- do.call("rbind", list(CP_Dep_full_results, CP_Dep_female_resul
 CPDep_results <- do.call("rbind", list(CPDep_full_results, CPDep_female_results, CPDep_male_results))
 
 CP_Dep_results$exposure <- recode(CP_Dep_results$exposure,
-                                  "bad_sleep" = "Aberrant sleep duration",
+                                  "too_little_sleep" = "Too little sleep",
+                                  "too_much_sleep" = "Too much sleep",
                                   "high_alcohol_consumption" = "High alcohol consumption",
                                   "lonely" = "Loneliness",
                                   "obese" = "Obesity",
@@ -206,9 +221,9 @@ CP_Dep_results$exposure <- recode(CP_Dep_results$exposure,
                                   "smoking" = "Smoking status",
                                   "unhealthy_diet" = "Unhealthy diet")
 
-
 CPDep_results$exposure <- recode(CPDep_results$exposure,
-                                  "bad_sleep" = "Aberrant sleep duration",
+                                 "too_little_sleep" = "Too little sleep",
+                                 "too_much_sleep" = "Too much sleep",
                                   "high_alcohol_consumption" = "High alcohol consumption",
                                   "lonely" = "Loneliness",
                                   "obese" = "Obesity",
@@ -327,8 +342,10 @@ CP_Dep_results_plot <- ggplot(CP_Dep_results[CP_Dep_results$exposure != "sensiti
   theme_minimal() +
   theme(panel.spacing = unit(3, "lines"), 
         text = element_text(size = 15),
-        legend.title = element_text(size = 12),
-        legend.text = element_text(size = 10)) + 
+        legend.title = element_text(size = 15),
+        legend.text = element_text(size = 12),
+        legend.position="bottom",
+        legend.box = "vertical") + 
   geom_hline(yintercept=0, linetype="dashed", color = "black") +
   coord_flip() +
   facet_wrap2(vars(sample)) +
@@ -341,9 +358,9 @@ CP_Dep_results_plot <- ggplot(CP_Dep_results[CP_Dep_results$exposure != "sensiti
 
 ## Plot comobidity groups
 ## Order exposures based on estimate in full sample
-CPDep_results$exposure <- factor(as.character(CPDep_results$exposure), levels = c("Low physical activity", "Unhealthy diet",
+CPDep_results$exposure <- factor(as.character(CPDep_results$exposure), levels = c("Low physical activity", "Unhealthy diet", "Too much sleep",
                                                                                   "High alcohol consumption", "Smoking status",
-                                                                                  "Loneliness", "Aberrant sleep duration", "Obesity", "sensitivity_PA_low"))
+                                                                                  "Loneliness", "Too little sleep", "Obesity", "sensitivity_PA_low"))
 CPDep_results$sample <- factor(CPDep_results$sample , levels = c("Full", "Female", "Male"))
 
 CPDep_results_plot <- ggplot(CPDep_results[CPDep_results$exposure != "sensitivity_PA_low",], aes(x=exposure, y=`Coefficient.Estimate`, shape=significant,colour=as.factor(Term))) +
@@ -352,8 +369,10 @@ CPDep_results_plot <- ggplot(CPDep_results[CPDep_results$exposure != "sensitivit
   theme_minimal() +
   theme(panel.spacing = unit(3, "lines"), 
         text = element_text(size = 15),
-        legend.title = element_text(size = 12),
-        legend.text = element_text(size = 10)) + 
+        legend.title = element_text(size = 15),
+        legend.text = element_text(size = 12),
+        legend.position="bottom",
+        legend.box = "vertical") + 
   geom_hline(yintercept=0, linetype="dashed", color = "black") +
   coord_flip() +
   facet_wrap2(vars(sample)) +
@@ -388,7 +407,7 @@ CPDep_results_sensitivity_plot <- ggplot(CPDep_results[grepl("PA_low|Low physica
   theme_minimal() +
   theme(panel.spacing = unit(3, "lines"), 
         text = element_text(size = 15),
-        legend.title = element_text(size = 12),
+        legend.title = element_text(size = 15),
         legend.text = element_text(size = 10)) + 
   geom_hline(yintercept=0, linetype="dashed", color = "black") +
   coord_flip() +
@@ -402,11 +421,11 @@ CPDep_results_sensitivity_plot <- ggplot(CPDep_results[grepl("PA_low|Low physica
 ## Save descriptive stats and results plots ----
 write.csv(descriptive_statistics, "/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/descriptive_statistics.csv", row.names = F)
 
-jpeg("/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/CP_Dep_results_plot.jpg", width=30,height=20,units="cm",res=1000)
+jpeg("/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/CP_Dep_results_plot.jpg", width=35,height=35,units="cm",res=1000)
 CP_Dep_results_plot
 dev.off()
 
-jpeg("/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/CPDep_results_plot.jpg",width=30,height=20,units="cm",res=1000)
+jpeg("/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/CPDep_results_plot.jpg",width=35,height=35,units="cm",res=1000)
 CPDep_results_plot
 dev.off()
 

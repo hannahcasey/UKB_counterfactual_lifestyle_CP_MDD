@@ -33,7 +33,7 @@ data_eligible$comorbid_CPDep <- recode(data_eligible$comorbid_CPDep,
        `CP+Dep+` = 3)
 
 ### Factorize categorical variables ----
-categorical_cols <- c("comorbid_CPDep", "PA_low", "bad_sleep", "lonely","smoking", "high_alcohol_consumption", "obese",
+categorical_cols <- c("comorbid_CPDep", "PA_low", "too_much_sleep", "too_little_sleep", "lonely","smoking", "high_alcohol_consumption", "obese",
                       "unhealthy_diet", "sex", "employment", "general_health", "living_with_partner")
 
 data_eligible <- data_eligible %>%
@@ -73,11 +73,8 @@ data_eligible_females_imputed <- mice(subset(data_eligible, sex == 1), m = 10, m
 ## Balance datasets ----
 ### Full sample ----
 ## Iterate through each exposure variable
-exposures <- c("PA_low", "lonely", "smoking", "high_alcohol_consumption", "obese", "unhealthy_diet", "bad_sleep")
+exposures <- c("PA_low", "lonely", "smoking", "high_alcohol_consumption", "obese", "unhealthy_diet", "too_much_sleep", "too_little_sleep")
 for (exposure in exposures){
-  
-  ## Get matching variables
-  matching_variables <- names(data_eligible)[!names(data_eligible) %in% c("f.eid", exposure, "followup_chronic_pain", "followup_depression", "comorbid_CPDep")]
   
   ## Get IDs of those with missing treatment -  these will be remove prior to matching
   ID_missing <- data_eligible$f.eid[is.na(data_eligible[,exposure])]
@@ -85,7 +82,16 @@ for (exposure in exposures){
   data_eligible_full_imputed_complete_treatment <- filter(data_eligible_full_imputed, !f.eid %in% ID_missing)
   
   ## Make formula
-  f = paste0(exposure," ~ ",paste0(matching_variables, collapse=" + "))
+  if (exposure == "too_much_sleep"){
+    matching_variables <- names(data_eligible)[!names(data_eligible) %in% c("f.eid", exposure, "followup_chronic_pain", "followup_depression", "comorbid_CPDep", "bad_sleep", "too_little_sleep")]
+    f = paste0(exposure," ~ ",paste0(matching_variables, collapse=" + "))
+  } else if(exposure == "too_little_sleep"){
+    matching_variables <- names(data_eligible)[!names(data_eligible) %in% c("f.eid", exposure, "followup_chronic_pain", "followup_depression", "comorbid_CPDep", "bad_sleep", "too_much_sleep")]
+    f = paste0(exposure," ~ ",paste0(matching_variables, collapse=" + "))
+  } else{
+    matching_variables <- names(data_eligible)[!names(data_eligible) %in% c("f.eid", exposure, "followup_chronic_pain", "followup_depression", "comorbid_CPDep", "bad_sleep")]
+    f = paste0(exposure," ~ ",paste0(matching_variables, collapse=" + "))
+  }
   
   ## Match treatment groups
   assign(paste0(exposure, "_full_balanced"), 
@@ -141,17 +147,22 @@ for (exposure in exposures){
 for (sex in c("male", "female")){
   for (exposure in exposures){
     
-    ## Get matching variables
-    matching_variables <- names(data_eligible)[!names(data_eligible) %in% c("sex", "f.eid", exposure, "followup_chronic_pain", "followup_depression", "comorbid_CPDep")]
-    
     ## Get IDs of those with missing treatment -  these will be remove prior to matching
     ID_missing <- data_eligible$f.eid[is.na(data_eligible[,exposure])]
     ## Remove those with missing treatment from imputed data
     data_eligible_full_imputed_complete_treatment <- filter(get(paste0("data_eligible_", sex, "s_imputed")), !f.eid %in% ID_missing)
     
-    
     ## Make formula
-    f = paste0(exposure," ~ ",paste0(matching_variables, collapse=" + "))
+    if (exposure == "too_much_sleep"){
+      matching_variables <- names(data_eligible)[!names(data_eligible) %in% c("f.eid", "sex", exposure, "followup_chronic_pain", "followup_depression", "comorbid_CPDep", "bad_sleep", "too_little_sleep")]
+      f = paste0(exposure," ~ ",paste0(matching_variables, collapse=" + "))
+    } else if(exposure == "too_much_sleep"){
+      matching_variables <- names(data_eligible)[!names(data_eligible) %in% c("f.eid", "sex", exposure, "followup_chronic_pain", "followup_depression", "comorbid_CPDep", "bad_sleep", "too_much_sleep")]
+      f = paste0(exposure," ~ ",paste0(matching_variables, collapse=" + "))
+    } else{
+      matching_variables <- names(data_eligible)[!names(data_eligible) %in% c("f.eid", "sex", exposure, "followup_chronic_pain", "followup_depression", "comorbid_CPDep", "bad_sleep")]
+      f = paste0(exposure," ~ ",paste0(matching_variables, collapse=" + "))
+    }
     
     assign(paste0(exposure,"_", sex, "_balanced"), 
            matchthem(as.formula(f), 
@@ -225,7 +236,13 @@ for (exposure in c(exposures, "sensitivity_PA_low")){
     if(exposure != "sensitivity_PA_low"){
       
       ## Get matching variables
-      matching_variables <- names(data_eligible)[!names(data_eligible) %in% c("f.eid", exposure, "followup_chronic_pain", "followup_depression", "comorbid_CPDep")]
+      if (exposure == "too_much_sleep"){
+        matching_variables <- names(data_eligible)[!names(data_eligible) %in% c("f.eid", exposure, "followup_chronic_pain", "followup_depression", "comorbid_CPDep", "bad_sleep", "too_little_sleep")]
+      } else if(exposure == "too_little_sleep"){
+        matching_variables <- names(data_eligible)[!names(data_eligible) %in% c("f.eid", exposure, "followup_chronic_pain", "followup_depression", "comorbid_CPDep", "bad_sleep", "too_much_sleep")]
+      } else{
+        matching_variables <- names(data_eligible)[!names(data_eligible) %in% c("f.eid", exposure, "followup_chronic_pain", "followup_depression", "comorbid_CPDep", "bad_sleep")]
+      }
 
       model_formula = as.formula(paste0(outcome,
                                         "~", exposure,
@@ -254,8 +271,8 @@ for (exposure in c(exposures, "sensitivity_PA_low")){
       ## Sensitivity analysis - low PA not matched on obesity
     } else{
       
-      ## Get matching variables
-      matching_variables <- names(data_eligible)[!names(data_eligible) %in% c("obese", "f.eid", "PA_low", "followup_chronic_pain", "followup_depression", "comorbid_CPDep")]
+      ## Get matching variables"
+      matching_variables <- names(data_eligible)[!names(data_eligible) %in% c("obese", "f.eid", "PA_low", "followup_chronic_pain", "followup_depression", "comorbid_CPDep", "bad_sleep")]
       
       ## Formula controlling for matching variables as covariates and their interactions with the exposure
       model_formula = as.formula(paste0(outcome,
@@ -306,7 +323,13 @@ for (sex in c("male", "female")){
       if(exposure != "sensitivity_PA_low"){
         
         ## Get matching variables
-        matching_variables <- names(data_eligible)[!names(data_eligible) %in% c("sex", "f.eid", exposure, "followup_chronic_pain", "followup_depression", "comorbid_CPDep")]
+        if (exposure == "too_much_sleep"){
+          matching_variables <- names(data_eligible)[!names(data_eligible) %in% c("f.eid", "sex", exposure, "followup_chronic_pain", "followup_depression", "comorbid_CPDep", "bad_sleep", "too_little_sleep")]
+        } else if(exposure == "too_little_sleep"){
+          matching_variables <- names(data_eligible)[!names(data_eligible) %in% c("f.eid", "sex", exposure, "followup_chronic_pain", "followup_depression", "comorbid_CPDep", "bad_sleep", "too_much_sleep")]
+        } else{
+          matching_variables <- names(data_eligible)[!names(data_eligible) %in% c("f.eid", "sex", exposure, "followup_chronic_pain", "followup_depression", "comorbid_CPDep", "bad_sleep")]
+        }
         
         ## Formula controlling for matching variables as covariates and their interactions with the exposure
         model_formula = as.formula(paste0(outcome,
@@ -337,7 +360,7 @@ for (sex in c("male", "female")){
       } else{
         
         ## Get matching variables
-        matching_variables <- names(data_eligible)[!names(data_eligible) %in% c("obese", "sex", "f.eid", "PA_low", "followup_chronic_pain", "followup_depression", "comorbid_CPDep")]
+        matching_variables <- names(data_eligible)[!names(data_eligible) %in% c("obese", "sex", "f.eid", "PA_low", "followup_chronic_pain", "followup_depression", "comorbid_CPDep", "bad_sleep")]
         
         ## Formula controlling for matching variables as covariates and their interactions with the exposure
         model_formula = as.formula(paste0(outcome,
@@ -395,7 +418,7 @@ for (exposure in c(exposures, "sensitivity_PA_low")){
   if(exposure != "sensitivity_PA_low"){
     
     ## Get matching variables
-    matching_variables <- names(data_eligible)[!names(data_eligible) %in% c("f.eid", exposure, "followup_chronic_pain", "followup_depression", "comorbid_CPDep")]
+    matching_variables <- names(data_eligible)[!names(data_eligible) %in% c("f.eid", exposure, "followup_chronic_pain", "followup_depression", "comorbid_CPDep", "bad_sleep")]
     
     ## Formula controlling for matching variables as covariates and their interactions with comorbidity groups
     model_formula = as.formula(paste0("comorbid_CPDep ~",
@@ -424,7 +447,7 @@ for (exposure in c(exposures, "sensitivity_PA_low")){
   else{
     
     ## Get matching variables
-    matching_variables <- names(data_eligible)[!names(data_eligible) %in% c("obese", "f.eid", "PA_low", "followup_chronic_pain", "followup_depression", "comorbid_CPDep")]
+    matching_variables <- names(data_eligible)[!names(data_eligible) %in% c("obese", "f.eid", "PA_low", "followup_chronic_pain", "followup_depression", "comorbid_CPDep", "bad_sleep")]
     
     ## Formula controlling for matching variables as covariates and their interactions with comorbidity groups
     model_formula = as.formula(paste0("comorbid_CPDep ~ PA_low",
@@ -487,7 +510,7 @@ for (sex in c("male", "female")){
     if(exposure != "sensitivity_PA_low"){
       
       ## Get matching variables
-      matching_variables <- names(data_eligible)[!names(data_eligible) %in% c("sex", "f.eid", exposure, "followup_chronic_pain", "followup_depression", "comorbid_CPDep")]
+      matching_variables <- names(data_eligible)[!names(data_eligible) %in% c("sex", "f.eid", exposure, "followup_chronic_pain", "followup_depression", "comorbid_CPDep", "bad_sleep")]
       
       ## Formula controlling for matching variables as covariates and their interactions with comorbidity groups
       model_formula = as.formula(paste0("comorbid_CPDep ~",
@@ -513,7 +536,7 @@ for (sex in c("male", "female")){
       }else{
       
         ## Get matching variables
-        matching_variables <- names(data_eligible)[!names(data_eligible) %in% c("obese", "f.eid", "PA_low", "followup_chronic_pain", "followup_depression", "comorbid_CPDep")]
+        matching_variables <- names(data_eligible)[!names(data_eligible) %in% c("obese", "f.eid", "PA_low", "followup_chronic_pain", "followup_depression", "comorbid_CPDep", "bad_sleep")]
         
         ## Formula controlling for matching variables as covariates and their interactions with comorbidity groups
         model_formula = as.formula(paste0("comorbid_CPDep ~ PA_low",
@@ -577,7 +600,6 @@ CP_Dep_female_results$p_adjust <- p.adjust(CP_Dep_female_results$`P-value`, meth
 CPDep_female_results$p_adjust <- p.adjust(CPDep_female_results$`P-value`, method = "bonferroni", n = n_comparisons)
 
 
-
 ## Save results ----
 write.csv(CP_Dep_full_results, "/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/CP_Dep_full_results.csv", row.names = F)
 write.csv(CPDep_full_results, "/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/CPDep_full_results.csv", row.names = F)
@@ -600,3 +622,4 @@ for (plot in ls(pattern="love_plot")){
 for (table in ls(pattern="bal_table|observation_table")){
   write.csv(get(table), paste0("/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/balancing/", table, ".csv"))
 }
+

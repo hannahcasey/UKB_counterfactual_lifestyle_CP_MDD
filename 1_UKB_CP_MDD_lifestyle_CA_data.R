@@ -285,6 +285,18 @@ data$bad_sleep[data$f.1160.0.0 < 7 | data$f.1160.0.0 > 9] <- 1
 data$bad_sleep[data$f.1160.0.0 >= 7 & data$f.1160.0.0 <= 9] <- 0
 table(data$bad_sleep)
 
+## Too much sleep defined as more than 9 hours of sleep
+data$too_much_sleep <- NA
+data$too_much_sleep[data$f.1160.0.0 > 9] <- 1
+data$too_much_sleep[data$f.1160.0.0 <= 9] <- 0
+table(data$too_much_sleep)
+
+## Too little sleep defined as more than 9 hours of sleep
+data$too_little_sleep <- NA
+data$too_little_sleep[data$f.1160.0.0 < 7] <- 1
+data$too_little_sleep[data$f.1160.0.0 >= 7] <- 0
+table(data$too_little_sleep)
+
 ### Loneliness ----
 ## Answered "yes" to "Do you often feel lonely?"
 data$lonely <- NA
@@ -613,7 +625,7 @@ data <- data %>%
          touchscreen_date = `f.21822.0.0`) %>%
   select(f.eid, 
          followup_chronic_pain, followup_depression, comorbid_CPDep,
-         PA_low, bad_sleep, lonely, smoking, high_alcohol_consumption, obese, unhealthy_diet, 
+         PA_low, bad_sleep, too_much_sleep, too_little_sleep, lonely, smoking, high_alcohol_consumption, obese, unhealthy_diet, 
          age, sex, education, employment, deprivation, general_health,living_with_partner, baseline_chronic_pain, baseline_depression,
          EOP_date, touchscreen_date)
 dim(data)
