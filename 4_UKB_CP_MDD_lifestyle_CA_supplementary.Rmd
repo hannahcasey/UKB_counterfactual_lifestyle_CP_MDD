@@ -142,15 +142,20 @@ figure_counter <- 0
 for (plot_path in love_plot_paths){
 
   figure_counter <- figure_counter + 1
+  
+  file <- basename(plot_path)
 
   ## Get sample
-   if (grepl("female", file)){
-    sample <- "female sample"
-  } else if (grepl("male", file)) {
+  
+  if (grepl("male", file)){
     sample <- "male sample"
-  } else if (grepl("full", file)) {
+    } 
+  if (grepl("female", file)) {
+    sample <- "female sample"
+    }
+  if (grepl("full", file)) {
     sample <- "full sample"
-  }
+    }
 
   ## Get exposure
   if (grepl("PA_low_", file)){
@@ -212,6 +217,9 @@ for (file in results_table_files){
   
   table <- read.csv(paste0("/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/", file ))
 
+  ## Remove sensitivity analysis
+  table <- subset(table, table$exposure != "sensitivity_PA_low")
+  
   ## Round numbers
   table <- table %>% mutate_if(is.numeric, round, digits=3)
   
@@ -233,9 +241,8 @@ for (file in results_table_files){
    if (grepl("CP_Dep_", file)){
     outcome <- "chronic pain and depression"
   } else if (grepl("CPDep_", file)) {
-    sample <- "comorbid chronic pain and depression groups"
+    outcome <- "comorbid chronic pain and depression groups"
   }
-  
   
   flextable_to_rmd(f)
   cat(paste0("Table S", table_counter, ". Effect of lifesyle-related variables in ", outcome, " in ", sample))
