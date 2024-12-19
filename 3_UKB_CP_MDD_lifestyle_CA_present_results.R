@@ -47,10 +47,10 @@ for (observation_table in sort(observation_table_files[!grepl("sensitivity_PA_lo
     exposure <- "Pysical activity" 
     box_name <- "low_PA_box" 
   } else if (grepl("too_much_sleep", observation_table)){
-    exposure <- "Too Much Sleep" 
+    exposure <- "Excessive Sleep" 
     box_name <- "too_much_sleep_box" 
   } else if (grepl("too_little_sleep", observation_table)){
-    exposure <- "Too Little Sleep" 
+    exposure <- "Insufficient Sleep" 
     box_name <- "too_little_sleep_box" 
   } else if (grepl("high_alcohol_consumption", observation_table)){
     exposure <- "High Alcohol Consumption" 
@@ -212,8 +212,8 @@ CP_Dep_results <- do.call("rbind", list(CP_Dep_full_results, CP_Dep_female_resul
 CPDep_results <- do.call("rbind", list(CPDep_full_results, CPDep_female_results, CPDep_male_results))
 
 CP_Dep_results$exposure <- recode(CP_Dep_results$exposure,
-                                  "too_little_sleep" = "Too little sleep",
-                                  "too_much_sleep" = "Too much sleep",
+                                  "too_little_sleep" = "Insufficient sleep",
+                                  "too_much_sleep" = "Excessive sleep",
                                   "high_alcohol_consumption" = "High alcohol consumption",
                                   "lonely" = "Loneliness",
                                   "obese" = "Obesity",
@@ -222,8 +222,8 @@ CP_Dep_results$exposure <- recode(CP_Dep_results$exposure,
                                   "unhealthy_diet" = "Unhealthy diet")
 
 CPDep_results$exposure <- recode(CPDep_results$exposure,
-                                 "too_little_sleep" = "Too little sleep",
-                                 "too_much_sleep" = "Too much sleep",
+                                 "too_little_sleep" = "Insufficient sleep",
+                                 "too_much_sleep" = "Excessive sleep",
                                   "high_alcohol_consumption" = "High alcohol consumption",
                                   "lonely" = "Loneliness",
                                   "obese" = "Obesity",
@@ -333,7 +333,8 @@ CPDep_results <- CPDep_results %>%
 
 ## Plot chronic pain and depression ----
 ## Order exposures based on estimate in full sample
-CP_Dep_results$exposure <- reorder(CP_Dep_results$exposure, -CP_Dep_results$Coefficient.Estimate)
+
+CP_Dep_results$exposure <- factor(as.character(CP_Dep_results$exposure), levels = sort(unique(CP_Dep_results$exposure), decreasing = T))
 CP_Dep_results$sample <- factor(CP_Dep_results$sample , levels = c("Full", "Female", "Male"))
 
 CP_Dep_results_plot <- ggplot(CP_Dep_results[CP_Dep_results$exposure != "sensitivity_PA_low",], aes(x=exposure, y=`Coefficient.Estimate`, shape=significant,colour=as.factor(outcome))) +
@@ -358,9 +359,7 @@ CP_Dep_results_plot <- ggplot(CP_Dep_results[CP_Dep_results$exposure != "sensiti
 
 ## Plot comobidity groups
 ## Order exposures based on estimate in full sample
-CPDep_results$exposure <- factor(as.character(CPDep_results$exposure), levels = c("Low physical activity", "Unhealthy diet", "Too much sleep",
-                                                                                  "High alcohol consumption", "Smoking status",
-                                                                                  "Loneliness", "Too little sleep", "Obesity", "sensitivity_PA_low"))
+CPDep_results$exposure <- factor(as.character(CPDep_results$exposure), levels = sort(unique(CPDep_results$exposure), decreasing = T))
 CPDep_results$sample <- factor(CPDep_results$sample , levels = c("Full", "Female", "Male"))
 
 CPDep_results_plot <- ggplot(CPDep_results[CPDep_results$exposure != "sensitivity_PA_low",], aes(x=exposure, y=`Coefficient.Estimate`, shape=significant,colour=as.factor(Term))) +
