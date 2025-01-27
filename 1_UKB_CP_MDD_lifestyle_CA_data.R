@@ -602,6 +602,11 @@ data$baseline_chronic_pain <- data$baseline_chronic_headache + data$baseline_chr
 ## If widespread chronic pain recorded, assign 8 chronic pain sites
 data$baseline_chronic_pain[data$baseline_chronic_widespread_pain == 1] <- 8
 
+## Dichotomize chronic pain
+## Chronic pain site > 0 = chronic pain case
+data$baseline_chronic_pain <- ifelse(data$baseline_chronic_pain > 0, 1,0)
+
+
 ### Baseline depression ----
 ## PHQ-2 score
 data$baseline_depressed_mood <- recode(data$f.2050.0.0,
@@ -622,8 +627,13 @@ data$baseline_anhedonia <- recode(data$f.2060.0.0,
 
 data$baseline_depression <- data$baseline_depressed_mood + data$baseline_anhedonia
 
+## Dichotomize depression
+## PHQ-2 > 2 = case
+data$baseline_depression <- ifelse(data$baseline_depression > 2, 1,0)
+
+
 ## Keep list of White and Irish British ----
-#british_irish_keep <- na.omit(data$f.eid[data$f.21000.0.0 == "British" | data$f.21000.0.0 == "Irish"])
+british_irish_keep <- na.omit(data$f.eid[data$f.21000.0.0 == "British" | data$f.21000.0.0 == "Irish"])
 
 ## Reduce dataframe ----
 

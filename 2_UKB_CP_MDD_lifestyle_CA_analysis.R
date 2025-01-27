@@ -33,8 +33,10 @@ data_eligible$comorbid_CPDep <- recode(data_eligible$comorbid_CPDep,
        `CP+Dep+` = 3)
 
 ### Factorize categorical variables ----
-categorical_cols <- c("comorbid_CPDep", "PA_low", "too_much_sleep", "too_little_sleep", "lonely","smoking", "high_alcohol_consumption", "obese",
-                      "unhealthy_diet", "sex", "employment", "general_health", "living_with_partner")
+categorical_cols <- c("baseline_depression", "baseline_chronic_pain", "followup_chronic_pain", "followup_depression",
+                      "comorbid_CPDep", "PA_low", "too_much_sleep", "too_little_sleep", "lonely","smoking", 
+                      "high_alcohol_consumption", "obese", "unhealthy_diet", "sex", "employment", "general_health",
+                      "living_with_partner")
 
 data_eligible <- data_eligible %>%
   mutate_at(categorical_cols, as.factor)
@@ -222,7 +224,7 @@ for (sex in c("male", "female")){
 }
 
 ## Outcome model ----
-### Linear regression ----
+### Logistic regression ----
 #### Full sample ----
 outcomes <- c("followup_chronic_pain", "followup_depression")
 
@@ -250,7 +252,7 @@ for (exposure in c(exposures, "sensitivity_PA_low")){
       
       ## Fit linear regression model
       fits <- lapply(extracted_balanced_data, function(d) {
-        lm(model_formula, data = d)
+        glm(model_formula, data = d, family = binomial)
       })
       
       ## Get marginal effetcs
