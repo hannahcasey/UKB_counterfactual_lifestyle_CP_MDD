@@ -219,6 +219,10 @@ data$followup_chronic_pain <- data$followup_chronic_headache + data$followup_chr
 ## If widespread chronic pain recorded, assign 8 chronic pain sites
 data$followup_chronic_pain[data$followup_chronic_widespread_pain == 1] <- 8
 
+## Dichotomize chronic pain
+## Chronic pain site > 0 = chronic pain case
+data$followup_chronic_pain <- ifelse(data$followup_chronic_pain > 0, 1,0)
+
 ## Get list of participants with "Experience of Pain" quesitonnaire data
 EOP_keep <- data$f.eid[!is.na(data$f.120128.0.0)]
 
@@ -247,13 +251,16 @@ data$followup_anhedonia <- recode(data$f.120105.0.0,
 
 data$followup_depression <- data$followup_depressed_mood + data$followup_anhedonia
 
+## Dichotomize follow up depression
+## PHQ-2 > 2 = case
+data$followup_depression <- ifelse(data$followup_depression > 2, 1,0)
 
 ### Follow-up comorbid chronic pain and dperession ----
 data$comorbid_CPDep <- NA
-data$comorbid_CPDep[data$followup_depression > 2 & data$followup_chronic_pain > 0] <- "CP+Dep+"
-data$comorbid_CPDep[data$followup_depression > 2 & data$followup_chronic_pain == 0] <- "CP-Dep+"
-data$comorbid_CPDep[data$followup_depression < 3 & data$followup_chronic_pain > 0] <- "CP+Dep-"
-data$comorbid_CPDep[data$followup_depression < 3 & data$followup_chronic_pain == 0] <- "CP-Dep-"
+data$comorbid_CPDep[data$followup_depression == 1 & data$followup_chronic_pain > 0] <- "CP+Dep+"
+data$comorbid_CPDep[data$followup_depression == 1 & data$followup_chronic_pain == 0] <- "CP-Dep+"
+data$comorbid_CPDep[data$followup_depression == 0 & data$followup_chronic_pain > 0] <- "CP+Dep-"
+data$comorbid_CPDep[data$followup_depression == 0 & data$followup_chronic_pain == 0] <- "CP-Dep-"
 table(data$comorbid_CPDep)
 
 ## Treatments ----
@@ -616,7 +623,7 @@ data$baseline_anhedonia <- recode(data$f.2060.0.0,
 data$baseline_depression <- data$baseline_depressed_mood + data$baseline_anhedonia
 
 ## Keep list of White and Irish British ----
-british_irish_keep <- na.omit(data$f.eid[data$f.21000.0.0 == "British" | data$f.21000.0.0 == "Irish"])
+#british_irish_keep <- na.omit(data$f.eid[data$f.21000.0.0 == "British" | data$f.21000.0.0 == "Irish"])
 
 ## Reduce dataframe ----
 
