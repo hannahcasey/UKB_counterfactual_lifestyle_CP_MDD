@@ -13,14 +13,17 @@ set.seed(151097)
 data <- read.csv("/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/data/UKB.csv")
 EOP_keep <- read.csv("/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/resources/EOP_keep.csv")
 alcohol_exclude <- read.csv("/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/resources/alcohol_exclude.csv")
-british_irish_keep <- read.csv("/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/resources/british_irish_keep.csv")
+#british_irish_keep <- read.csv("/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/resources/british_irish_keep.csv")
 
 
 ## Data Prep ----
 ### Remove ineligible ----
 ## Remove ineligible participants from analysis
-data_british_irish_EOP <- data[data$f.eid %in% intersect(british_irish_keep$x, EOP_keep$x),]
-data_eligible <- data_british_irish_EOP[!data_british_irish_EOP$f.eid %in% alcohol_exclude$x,]
+#data_british_irish_EOP <- data[data$f.eid %in% intersect(british_irish_keep$x, EOP_keep$x),]
+#data_eligible <- data_british_irish_EOP[!data_british_irish_EOP$f.eid %in% alcohol_exclude$x,]
+
+data_eligible_IDs <- EOP_keep$x[!EOP_keep$x %in% alcohol_exclude$x]
+data_eligible <- data[data$f.eid %in% data_eligible_IDs,]
 
 ## Save eligible data
 write.csv(data_eligible, "/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/data/UKB_eligible.csv", row.names = F)
