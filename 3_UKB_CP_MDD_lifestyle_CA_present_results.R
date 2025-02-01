@@ -20,7 +20,7 @@ data_eligible <- read.csv("/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_li
 data <- read.csv("/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/data/UKB.csv")
 EOP_keep <- read.csv("/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/resources/EOP_keep.csv")
 alcohol_exclude <- read.csv("/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/resources/alcohol_exclude.csv")
-british_irish_keep <- read.csv("/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/resources/british_irish_keep.csv")
+#british_irish_keep <- read.csv("/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/resources/british_irish_keep.csv")
 
 ## Load in observation tables
 observation_table_files <- list.files(path = "/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/balancing/", pattern = "observation_table")
@@ -142,8 +142,8 @@ for (observation_table in sort(observation_table_files[!grepl("sensitivity_PA_lo
 
 ## Sample flow chart ----
 ## Get overlap of participants with EOP data who also drink and are british/irish
-EOP_alcohol_keep <- EOP_keep$x[!EOP_keep$x %in% alcohol_exclude$x]
-eligible_keep <- EOP_alcohol_keep[EOP_alcohol_keep %in% british_irish_keep$x]
+eligible_keep <- EOP_keep$x[!EOP_keep$x %in% alcohol_exclude$x]
+#eligible_keep <- EOP_alcohol_keep[EOP_alcohol_keep %in% british_irish_keep$x]
 
 UKB_pop <- boxGrob(glue("UK Biobank Sample",
                         "n = {pop}",
@@ -162,11 +162,9 @@ eligible_pop <- boxGrob(glue("Eligible",
 exclude_pop <- boxGrob(glue("Excluded (n = {tot}):",
                             " - No EOP: {no_EOP}",
                             " - Non-drinker (in EOP sample): {non_drinker}",
-                            " - Non-British/Irish (in EOP drinker sample): {non_british_irish}",
                             tot = txtInt(nrow(data) - length(eligible_keep)),
                             no_EOP = txtInt(nrow(data) - nrow(EOP_keep)),
-                            non_drinker = txtInt(nrow(EOP_keep) - length(EOP_alcohol_keep)),
-                            non_british_irish = txtInt((length(EOP_alcohol_keep) - length(eligible_keep))),
+                            non_drinker = txtInt(nrow(EOP_keep) - length(eligible_keep)),
                             .sep = "\n"), 
                        y = 0.90, x = 0.75, bjust = c(0.5, 0.5),
                        just = "left")
