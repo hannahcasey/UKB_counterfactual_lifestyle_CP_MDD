@@ -44,14 +44,23 @@ touchscreen_sm <- touchscreen[ ,grepl("f.eid", names(touchscreen)) |
                                  grepl("f.24506.0.", names(touchscreen))|
                                  grepl("f.2178.0.", names(touchscreen))|
                                  grepl("f.2020.0.", names(touchscreen))|
+                                 grepl("f.2020.1.", names(touchscreen))|
                                  grepl("f.1558.0.", names(touchscreen))|
                                  grepl("f.1568.0.", names(touchscreen))|
                                  grepl("f.1578.0.", names(touchscreen))|
                                  grepl("f.1588.0.", names(touchscreen))|
                                  grepl("f.1598.0.", names(touchscreen))|
                                  grepl("f.1608.0.", names(touchscreen))|
+                                 grepl("f.1558.1.", names(touchscreen))|
+                                 grepl("f.1568.1.", names(touchscreen))|
+                                 grepl("f.1578.1.", names(touchscreen))|
+                                 grepl("f.1588.1.", names(touchscreen))|
+                                 grepl("f.1598.1.", names(touchscreen))|
+                                 grepl("f.1608.1.", names(touchscreen))|
                                  grepl("f.1239.0.", names(touchscreen))|
+                                 grepl("f.1239.1.", names(touchscreen))|
                                  grepl("f.1160.0.", names(touchscreen))|
+                                 grepl("f.1160.1.", names(touchscreen))|
                                  grepl("f.1309.0.", names(touchscreen))|
                                  grepl("f.1319.0.", names(touchscreen))|
                                  grepl("f.1289.0.", names(touchscreen))|
@@ -66,6 +75,20 @@ touchscreen_sm <- touchscreen[ ,grepl("f.eid", names(touchscreen)) |
                                  grepl("f.1448.0.", names(touchscreen))|
                                  grepl("f.1458.0.", names(touchscreen))|
                                  grepl("f.1468.0.", names(touchscreen))|
+                                 grepl("f.1309.1.", names(touchscreen))|
+                                 grepl("f.1319.1.", names(touchscreen))|
+                                 grepl("f.1289.1.", names(touchscreen))|
+                                 grepl("f.1299.1.", names(touchscreen))|
+                                 grepl("f.1329.1.", names(touchscreen))|
+                                 grepl("f.1339.1.", names(touchscreen))|
+                                 grepl("f.1349.1.", names(touchscreen))|
+                                 grepl("f.1369.1.", names(touchscreen))|
+                                 grepl("f.1379.1.", names(touchscreen))|
+                                 grepl("f.1389.1.", names(touchscreen))|
+                                 grepl("f.1438.1.", names(touchscreen))|
+                                 grepl("f.1448.1.", names(touchscreen))|
+                                 grepl("f.1458.1.", names(touchscreen))|
+                                 grepl("f.1468.1.", names(touchscreen))|
                                  grepl("f.21000.0.", names(touchscreen))|
                                  grepl("f.6159.0.", names(touchscreen))|
                                  grepl("f.2956.0.", names(touchscreen))|
@@ -82,6 +105,12 @@ touchscreen_sm <- touchscreen[ ,grepl("f.eid", names(touchscreen)) |
                                  grepl("f.884.0.", names(touchscreen))|
                                  grepl("f.914.0.", names(touchscreen))|
                                  grepl("f.904.0.", names(touchscreen))|
+                                 grepl("f.874.1.", names(touchscreen))|
+                                 grepl("f.864.1.", names(touchscreen))|
+                                 grepl("f.894.1.", names(touchscreen))|
+                                 grepl("f.884.1.", names(touchscreen))|
+                                 grepl("f.914.1.", names(touchscreen))|
+                                 grepl("f.904.1.", names(touchscreen))|
                                  grepl("f.2050.0.", names(touchscreen))|
                                  grepl("f.2060.0.", names(touchscreen))]
 
@@ -90,7 +119,8 @@ procedural_metrics <- readRDS("/Volumes/GenScotDepression/data/ukb/phenotypes/fi
 ## Touchscreen questionnaire date (21822)
 
 procedural_metrics_sm <- procedural_metrics[ ,grepl("f.eid", names(procedural_metrics)) |
-                                                           grepl("f.21822.0.", names(procedural_metrics))]
+                                               grepl("f.21822.0.", names(procedural_metrics))|
+                                               grepl("f.21822.1.", names(procedural_metrics))]
 ### Baseline characteristics ----
 baseline_characteristics <- readRDS("/Volumes/GenScotDepression/data/ukb/phenotypes/fields/2021-04-phenotypes-ukb44797/BaselineCharacteristics.rds")
 ## Sex (31)
@@ -110,7 +140,8 @@ physical_measures <- readRDS("/Volumes/GenScotDepression/data/ukb/phenotypes/fie
 ## BMI (21001)
 
 physical_measures_sm <- physical_measures[ ,grepl("f.eid", names(physical_measures)) |
-                                             grepl("f.21001.0.", names(physical_measures))]
+                                             grepl("f.21001.0.", names(physical_measures)) |
+                                             grepl("f.21001.1.", names(physical_measures))]
 
 ### Experience of pain ----
 EOP <- readRDS("/Volumes/GenScotDepression/data/ukb/phenotypes/fields/2021-04-chronicpain-ukb45596/ExperienceOfPain.rds")
@@ -223,16 +254,11 @@ data$followup_chronic_pain[data$followup_chronic_widespread_pain == 1] <- 8
 ## Chronic pain site > 0 = chronic pain case
 data$followup_chronic_pain <- ifelse(data$followup_chronic_pain > 0, 1,0)
 
-## Get list of participants with "Experience of Pain" quesitonnaire data
-EOP_keep <- data$f.eid[!is.na(data$f.120128.0.0)]
-
 ### Follow-up depression ----
 
 ## PHQ-2 (120104, 120105)
 ## Little interest or pleasure in doing things over the last two weeks (120104)
 ## Feeling down, depressed, or hopeless over the last two weeks (120105)
-
-data$f.120104
 
 ## PHQ-2 score
 data$followup_depressed_mood <- recode(data$f.120104.0.0,
@@ -263,7 +289,7 @@ data$comorbid_CPDep[data$followup_depression == 0 & data$followup_chronic_pain >
 data$comorbid_CPDep[data$followup_depression == 0 & data$followup_chronic_pain == 0] <- "CP-Dep-"
 table(data$comorbid_CPDep)
 
-## Treatments ----
+## Exposures ----
 
 ### Low physcial activity ----
 ## International Physical Activity Questionnaire short form:
@@ -274,49 +300,65 @@ data$f.874.0.0[data$f.864.0.0 == 0] <- 0
 data$f.894.0.0[data$f.884.0.0 == 0] <- 0
 data$f.914.0.0[data$f.904.0.0 == 0] <- 0
 
+data$f.874.1.0[data$f.864.1.0 == 0] <- 0
+data$f.894.1.0[data$f.884.1.0 == 0] <- 0
+data$f.914.1.0[data$f.904.1.0 == 0] <- 0
+
 ## Replace -1 and -3 with NA
 data$f.874.0.0[data$f.874.0.0 == -1 | data$f.874.0.0 == -3] <- NA
 data$f.894.0.0[data$f.894.0.0 == -1 | data$f.894.0.0 == -3] <- NA
 data$f.914.0.0[data$f.914.0.0 == -1 | data$f.914.0.0 == -3] <- NA
 
+data$f.874.1.0[data$f.874.1.0 == -1 | data$f.874.1.0 == -3] <- NA
+data$f.894.1.0[data$f.894.1.0 == -1 | data$f.894.1.0 == -3] <- NA
+data$f.914.1.0[data$f.914.1.0 == -1 | data$f.914.1.0 == -3] <- NA
+
 ## Indicate if participants get recommended PA from walking, moderate and vigorous exercise
 data$PA_low <- NA
-data$PA_low[(data$f.874.0.0 + data$f.894.0.0 + (data$f.914.0.0 * 2) * 7) > 150] <- 0
-data$PA_low[(data$f.874.0.0 + data$f.894.0.0 + (data$f.914.0.0 * 2) * 7) < 150] <- 1
+data$PA_low[(data$f.874.1.0 + data$f.894.1.0 + (data$f.914.1.0 * 2) * 7) > 150] <- 0
+data$PA_low[(data$f.874.1.0 + data$f.894.1.0 + (data$f.914.1.0 * 2) * 7) < 150] <- 1
 table(data$PA_low)
 
-### Aberrant sleep duration ---- 
-## Poor sleep defined as less than 7 or more than 9 hours
-data$bad_sleep <- NA
-data$bad_sleep[data$f.1160.0.0 < 7 | data$f.1160.0.0 > 9] <- 1
-data$bad_sleep[data$f.1160.0.0 >= 7 & data$f.1160.0.0 <= 9] <- 0
-table(data$bad_sleep)
+data$PA_low_baseline <- NA
+data$PA_low_baseline[(data$f.874.0.0 + data$f.894.0.0 + (data$f.914.0.0 * 2) * 7) > 150] <- 0
+data$PA_low_baseline[(data$f.874.0.0 + data$f.894.0.0 + (data$f.914.0.0 * 2) * 7) < 150] <- 1
+table(data$PA_low_baseline)
 
-## Too much sleep defined as more than 9 hours of sleep
-data$too_much_sleep <- NA
-data$too_much_sleep[data$f.1160.0.0 > 9] <- 1
-data$too_much_sleep[data$f.1160.0.0 <= 9] <- 0
-table(data$too_much_sleep)
+### Insufficient sleep duration ---- 
+## insufficient sleep defined as more than 9 hours of sleep
+data$insufficient_sleep <- NA
+data$insufficient_sleep[data$f.1160.1.0 < 7] <- 1
+data$insufficient_sleep[data$f.1160.1.0 >= 7] <- 0
+table(data$insufficient_sleep)
 
-## Too little sleep defined as more than 9 hours of sleep
-data$too_little_sleep <- NA
-data$too_little_sleep[data$f.1160.0.0 < 7] <- 1
-data$too_little_sleep[data$f.1160.0.0 >= 7] <- 0
-table(data$too_little_sleep)
+data$insufficient_sleep_baseline <- NA
+data$insufficient_sleep_baseline[data$f.1160.0.0 < 7] <- 1
+data$insufficient_sleep_baseline[data$f.1160.0.0 >= 7] <- 0
+table(data$insufficient_sleep_baseline)
 
 ### Loneliness ----
 ## Answered "yes" to "Do you often feel lonely?"
 data$lonely <- NA
-data$lonely[data$f.2020.0.0 == "Yes"] <- 1
-data$lonely[data$f.2020.0.0 == "No"] <- 0
+data$lonely[data$f.2020.1.0 == "Yes"] <- 1
+data$lonely[data$f.2020.1.0 == "No"] <- 0
 table(data$lonely)
+
+data$lonely_baseline <- NA
+data$lonely_baseline[data$f.2020.0.0 == "Yes"] <- 1
+data$lonely_baseline[data$f.2020.0.0 == "No"] <- 0
+table(data$lonely_baseline)
 
 ### Smoking ----
 ## Answered "yes", "on most or all days" or "only occasionally"
 data$smoking <- NA
-data$smoking[data$f.1239.0.0 == "Yes, on most or all days" | data$f.1239.0.0 == "Only occasionally"] <- 1
-data$smoking[data$f.1239.0.0 == "No"] <- 0
+data$smoking[data$f.1239.1.0 == "Yes, on most or all days" | data$f.1239.1.0 == "Only occasionally"] <- 1
+data$smoking[data$f.1239.1.0 == "No"] <- 0
 table(data$smoking)
+
+data$smoking_baseline <- NA
+data$smoking_baseline[data$f.1239.0.0 == "Yes, on most or all days" | data$f.1239.0.0 == "Only occasionally"] <- 1
+data$smoking_baseline[data$f.1239.0.0 == "No"] <- 0
+table(data$smoking_baseline)
 
 ### High alcohol consumption ----
 ## Sum total number of units per month
@@ -330,20 +372,32 @@ table(data$smoking)
 
 data$high_alcohol_consumption <- NA
 ## Only participants reporting alcohol intake more than 1-3 times a month asked about unit consumption, for those who seldom drink indicate no high alcohol consumption status
-data$high_alcohol_consumption[data$f.1558.0.0 == "One to three times a month" | data$f.1558.0.0 == "Special occasions only"] <- 0
-data$high_alcohol_consumption[((data$f.1568.0.0 * 2.1) + (data$f.1578.0.0 * 2.1) + (data$f.1588.0.0 * 2) + data$f.1598.0.0 + (data$f.1608.0.0 * 2.1)) > 14] <- 1
-data$high_alcohol_consumption[((data$f.1568.0.0 * 2.1) + (data$f.1578.0.0 * 2.1) + (data$f.1588.0.0 * 2) + data$f.1598.0.0 + (data$f.1608.0.0 * 2.1)) <= 14] <- 0
+data$high_alcohol_consumption[data$f.1558.1.0 == "One to three times a month" | data$f.1558.1.0 == "Special occasions only"] <- 0
+data$high_alcohol_consumption[((data$f.1568.1.0 * 2.1) + (data$f.1578.1.0 * 2.1) + (data$f.1588.1.0 * 2) + data$f.1598.1.0 + (data$f.1608.1.0 * 2.1)) > 14] <- 1
+data$high_alcohol_consumption[((data$f.1568.1.0 * 2.1) + (data$f.1578.1.0 * 2.1) + (data$f.1588.1.0 * 2) + data$f.1598.1.0 + (data$f.1608.1.0 * 2.1)) <= 14] <- 0
 table(data$high_alcohol_consumption)
 
+data$high_alcohol_consumption_baseline <- NA
+## Only participants reporting alcohol intake more than 1-3 times a month asked about unit consumption, for those who seldom drink indicate no high alcohol consumption status
+data$high_alcohol_consumption_baseline[data$f.1558.0.0 == "One to three times a month" | data$f.1558.0.0 == "Special occasions only"] <- 0
+data$high_alcohol_consumption_baseline[((data$f.1568.0.0 * 2.1) + (data$f.1578.0.0 * 2.1) + (data$f.1588.0.0 * 2) + data$f.1598.0.0 + (data$f.1608.0.0 * 2.1)) > 14] <- 1
+data$high_alcohol_consumption_baseline[((data$f.1568.0.0 * 2.1) + (data$f.1578.0.0 * 2.1) + (data$f.1588.0.0 * 2) + data$f.1598.0.0 + (data$f.1608.0.0 * 2.1)) <= 14] <- 0
+table(data$high_alcohol_consumption_baseline)
+
 ## Create exclude list of those who reported never drinking
-alcohol_exclude <- na.omit(data$f.eid[data$f.1558.0.0 == "Never"])
+alcohol_exclude <- na.omit(data$f.eid[data$f.1558.0.0 == "Never" | data$f.1558.1.0 == "Never"])
 
 ### Obesity ----
 ## BMI greater than 30
 data$obese <- NA
-data$obese[data$f.21001.0.0 >= 30] <- 1
-data$obese[data$f.21001.0.0 < 30] <- 0
+data$obese[data$f.21001.1.0 >= 30] <- 1
+data$obese[data$f.21001.1.0 < 30] <- 0
 table(data$obese)
+
+data$obese_baseline <- NA
+data$obese_baseline[data$f.21001.0.0 >= 30] <- 1
+data$obese_baseline[data$f.21001.0.0 < 30] <- 0
+table(data$obese_baseline)
 
 ### Unhealthy Diet ----
 ## Less than 4 of the following 7 food groups:
@@ -356,21 +410,33 @@ table(data$obese)
 ## Refined grains: ≤1.5servings/day (based on bread and cereal intake: 1438, 1458 and grain type: 1448, 1468)
 
 ## Estimate fruit intake
-data$fresh_fruit <- data$f.1309.0.0
+data$fresh_fruit <- data$f.1309.1.0
 data$fresh_fruit[data$fresh_fruit < 0] <- NA
-data$dried_fruit <- data$f.1319.0.0
+data$dried_fruit <- data$f.1319.1.0
 data$dried_fruit[data$dried_fruit < 0] <- NA
 data$fruit <- ifelse((data$fresh_fruit + data$dried_fruit) >= 3, 1,0) ## Fruit intake at least 3
 
+data$fresh_fruit_baseline <- data$f.1309.0.0
+data$fresh_fruit_baseline[data$fresh_fruit_baseline < 0] <- NA
+data$dried_fruit_baseline <- data$f.1319.0.0
+data$dried_fruit_baseline[data$dried_fruit_baseline < 0] <- NA
+data$fruit_baseline <- ifelse((data$fresh_fruit_baseline + data$dried_fruit_baseline) >= 3, 1,0) ## Fruit intake at least 3
+
 ## Estimate veg intake
-data$cooked_veg <- data$f.1289.0.0
+data$cooked_veg <- data$f.1289.1.0
 data$cooked_veg[data$cooked_veg < 0] <- NA
-data$raw_veg <- data$f.1299.0.0
+data$raw_veg <- data$f.1299.1.0
 data$raw_veg[data$raw_veg < 0] <- NA
 data$veg <- ifelse((data$cooked_veg + data$raw_veg) >= 3, 1,0) ## Veg intake at least 3
 
+data$cooked_veg_baseline <- data$f.1289.0.0
+data$cooked_veg_baseline[data$cooked_veg_baseline < 0] <- NA
+data$raw_veg_baseline <- data$f.1299.0.0
+data$raw_veg_baseline[data$raw_veg_baseline < 0] <- NA
+data$veg_baseline <- ifelse((data$cooked_veg_baseline + data$raw_veg_baseline) >= 3, 1,0) ## Veg intake at least 3
+
 ## Estimate fish intake
-data$oily_fish <-recode(data$f.1329.0.0,
+data$oily_fish <-recode(data$f.1329.1.0,
                         'Do not know' = NaN,
                         'Prefer not to answer' = NaN,
                         'Never' = 0,
@@ -380,7 +446,7 @@ data$oily_fish <-recode(data$f.1329.0.0,
                         '5-6 times a week' = 5.5,
                         'Once or more daily' = 7)
 
-data$non_oily_fish <-recode(data$f.1339.0.0,
+data$non_oily_fish <-recode(data$f.1339.1.0,
                         'Do not know' = NaN,
                         'Prefer not to answer' = NaN,
                         'Never' = 0,
@@ -392,13 +458,7 @@ data$non_oily_fish <-recode(data$f.1339.0.0,
 
 data$fish <- ifelse((data$oily_fish + data$non_oily_fish) >= 2, 1,0) ## Fish intake at least 2
 
-## Estimate processed meat intake
-data$processed_meat <- NA
-data$processed_meat[data$f.1349.0.0 == "Never" | data$f.1349.0.0 == "Less than once a week" | data$f.1349.0.0 == "Once a week"] <- 1
-data$processed_meat[data$f.1349.0.0 == "2-4 times a week" | data$f.1349.0.0 == "5-6 times a week" | data$f.1349.0.0 == "Once or more daily"] <- 0
-
-## Estimate unprocessed meat intake
-data$beef <-recode(data$f.1369.0.0,
+data$oily_fish_baseline <-recode(data$f.1329.0.0,
                         'Do not know' = NaN,
                         'Prefer not to answer' = NaN,
                         'Never' = 0,
@@ -408,7 +468,39 @@ data$beef <-recode(data$f.1369.0.0,
                         '5-6 times a week' = 5.5,
                         'Once or more daily' = 7)
 
-data$lamb <-recode(data$f.1379.0.0,
+data$non_oily_fish_baseline <-recode(data$f.1339.0.0,
+                            'Do not know' = NaN,
+                            'Prefer not to answer' = NaN,
+                            'Never' = 0,
+                            'Less than once a week' = 0,
+                            'Once a week' = 1,
+                            '2-4 times a week' = 3,
+                            '5-6 times a week' = 5.5,
+                            'Once or more daily' = 7)
+
+data$fish_baseline <- ifelse((data$oily_fish_baseline + data$non_oily_fish_baseline) >= 2, 1,0) ## Fish intake at least 2
+
+## Estimate processed meat intake
+data$processed_meat <- NA
+data$processed_meat[data$f.1349.1.0 == "Never" | data$f.1349.1.0 == "Less than once a week" | data$f.1349.1.0 == "Once a week"] <- 1
+data$processed_meat[data$f.1349.1.0 == "2-4 times a week" | data$f.1349.1.0 == "5-6 times a week" | data$f.1349.1.0 == "Once or more daily"] <- 0
+
+data$processed_meat_baseline <- NA
+data$processed_meat_baseline[data$f.1349.0.0 == "Never" | data$f.1349.0.0 == "Less than once a week" | data$f.1349.0.0 == "Once a week"] <- 1
+data$processed_meat_baseline[data$f.1349.0.0 == "2-4 times a week" | data$f.1349.0.0 == "5-6 times a week" | data$f.1349.0.0 == "Once or more daily"] <- 0
+
+## Estimate unprocessed meat intake
+data$beef <-recode(data$f.1369.1.0,
+                        'Do not know' = NaN,
+                        'Prefer not to answer' = NaN,
+                        'Never' = 0,
+                        'Less than once a week' = 0,
+                        'Once a week' = 1,
+                        '2-4 times a week' = 3,
+                        '5-6 times a week' = 5.5,
+                        'Once or more daily' = 7)
+
+data$lamb <-recode(data$f.1379.1.0,
                    'Do not know' = NaN,
                    'Prefer not to answer' = NaN,
                    'Never' = 0,
@@ -418,7 +510,7 @@ data$lamb <-recode(data$f.1379.0.0,
                    '5-6 times a week' = 5.5,
                    'Once or more daily' = 7)
 
-data$pork <-recode(data$f.1389.0.0,
+data$pork <-recode(data$f.1389.1.0,
                    'Do not know' = NaN,
                    'Prefer not to answer' = NaN,
                    'Never' = 0,
@@ -430,65 +522,156 @@ data$pork <-recode(data$f.1389.0.0,
 
 data$unprocessed_meat <- ifelse((data$beef + data$lamb + data$pork) <= 1.5, 1,0) ## unprocessed meat less than 1.5
 
+data$beef_baseline <-recode(data$f.1369.0.0,
+                   'Do not know' = NaN,
+                   'Prefer not to answer' = NaN,
+                   'Never' = 0,
+                   'Less than once a week' = 0,
+                   'Once a week' = 1,
+                   '2-4 times a week' = 3,
+                   '5-6 times a week' = 5.5,
+                   'Once or more daily' = 7)
+
+data$lamb_baseline <-recode(data$f.1379.0.0,
+                   'Do not know' = NaN,
+                   'Prefer not to answer' = NaN,
+                   'Never' = 0,
+                   'Less than once a week' = 0,
+                   'Once a week' = 1,
+                   '2-4 times a week' = 3,
+                   '5-6 times a week' = 5.5,
+                   'Once or more daily' = 7)
+
+data$pork_baseline <-recode(data$f.1389.0.0,
+                   'Do not know' = NaN,
+                   'Prefer not to answer' = NaN,
+                   'Never' = 0,
+                   'Less than once a week' = 0,
+                   'Once a week' = 1,
+                   '2-4 times a week' = 3,
+                   '5-6 times a week' = 5.5,
+                   'Once or more daily' = 7)
+
+data$unprocessed_meat_baseline <- ifelse((data$beef_baseline + data$lamb_baseline + data$pork_baseline) <= 1.5, 1,0) ## unprocessed meat less than 1.5
+
 ## Estimate daily whole grain intake
 ## Bread
-data$whole_grain_bread <- data$f.1438.0.0
+data$whole_grain_bread <- data$f.1438.1.0
 ## Replace negative values with NA
 data$whole_grain_bread[data$whole_grain_bread < 0] <- NA
 ## Replace with 0 if non-wholegrain
-data$whole_grain_bread[data$f.1448.0.0 == "White" | data$f.1448.0.0 == "Other type of bread"] <- 0
+data$whole_grain_bread[data$f.1448.1.0 == "White" | data$f.1448.1.0 == "Other type of bread"] <- 0
 ## Replace unknown with NA  
-data$whole_grain_bread[data$f.1448.0.0 == "Prefer not to answer" |
-                         data$f.1448.0.0 == "Do not know" |
-                         is.na(data$f.1448.0.0 )] <- NA
+data$whole_grain_bread[data$f.1448.1.0 == "Prefer not to answer" |
+                         data$f.1448.1.0 == "Do not know" |
+                         is.na(data$f.1448.1.0 )] <- NA
  
 ## Cereal
-data$whole_grain_cereal <- data$f.1458.0.0
+data$whole_grain_cereal <- data$f.1458.1.0
 ## Replace negative values with NA
 data$whole_grain_cereal[data$whole_grain_cereal < 0] <- NA
 ## Replace with 0 if non-wholegrain
-data$whole_grain_cereal[data$f.1468.0.0 == "Biscuit cereal (e.g. Weetabix)" |
-                          data$f.1468.0.0 == "Other (e.g. Cornflakes, Frosties)" |
-                          data$f.1468.0.0 == "Bran cereal (e.g. All Bran, Branflakes)"] <- 0
+data$whole_grain_cereal[data$f.1468.1.0 == "Biscuit cereal (e.g. Weetabix)" |
+                          data$f.1468.1.0 == "Other (e.g. Cornflakes, Frosties)" |
+                          data$f.1468.1.0 == "Bran cereal (e.g. All Bran, Branflakes)"] <- 0
 ## Replace unknown with NA  
-data$whole_grain_cereal[data$f.1468.0.0 == "Prefer not to answer" |
-                          data$f.1468.0.0 == "Do not know" |
-                          is.na(data$f.1468.0.0 )] <- NA
+data$whole_grain_cereal[data$f.1468.1.0 == "Prefer not to answer" |
+                          data$f.1468.1.0 == "Do not know" |
+                          is.na(data$f.1468.1.0 )] <- NA
 
 data$whole_grain <- ifelse((data$whole_grain_bread + data$whole_grain_cereal) / 7 >= 3, 1,0) ## wholegrain greater than 3
 
+## Bread
+data$whole_grain_bread_baseline <- data$f.1438.0.0
+## Replace negative values with NA
+data$whole_grain_bread_baseline[data$whole_grain_bread_baseline < 0] <- NA
+## Replace with 0 if non-wholegrain
+data$whole_grain_bread_baseline[data$f.1448.0.0 == "White" | data$f.1448.0.0 == "Other type of bread"] <- 0
+## Replace unknown with NA  
+data$whole_grain_bread_baseline[data$f.1448.0.0 == "Prefer not to answer" |
+                         data$f.1448.0.0 == "Do not know" |
+                         is.na(data$f.1448.0.0 )] <- NA
+
+## Cereal
+data$whole_grain_cereal_baseline <- data$f.1458.0.0
+## Replace negative values with NA
+data$whole_grain_cereal_baseline[data$whole_grain_cereal < 0] <- NA
+## Replace with 0 if non-wholegrain
+data$whole_grain_cereal_baseline[data$f.1468.0.0 == "Biscuit cereal (e.g. Weetabix)" |
+                          data$f.1468.0.0 == "Other (e.g. Cornflakes, Frosties)" |
+                          data$f.1468.0.0 == "Bran cereal (e.g. All Bran, Branflakes)"] <- 0
+## Replace unknown with NA  
+data$whole_grain_cerea_baselinel[data$f.1468.0.0 == "Prefer not to answer" |
+                          data$f.1468.0.0 == "Do not know" |
+                          is.na(data$f.1468.0.0 )] <- NA
+
+data$whole_grain_baseline <- ifelse((data$whole_grain_bread_baseline + data$whole_grain_cereal_baseline) / 7 >= 3, 1,0) ## wholegrain greater than 3
+
+
 ## Estimate daily refined grain intake
 ## Bread
-data$refined_grain_bread <- data$f.1438.0.0
+data$refined_grain_bread <- data$f.1438.1.0
 ## Replace negative values with NA
 data$refined_grain_bread[data$refined_grain_bread < 0] <- NA
 
 ## Replace with 0 if non-refined grain
-data$refined_grain_bread[data$f.1448.0.0 == "Wholemeal or wholegrain" | data$f.1448.0.0 == "Brown"] <- 0
+data$refined_grain_bread[data$f.1448.1.0 == "Wholemeal or wholegrain" | data$f.1448.1.0 == "Brown"] <- 0
 ## Replace unknown with NA  
-data$refined_grain_bread[data$f.1448.0.0 == "Prefer not to answer" |
-                         data$f.1448.0.0 == "Do not know" |
-                         is.na(data$f.1448.0.0 )] <- NA
+data$refined_grain_bread[data$f.1448.1.0 == "Prefer not to answer" |
+                         data$f.1448.1.0 == "Do not know" |
+                         is.na(data$f.1448.1.0 )] <- NA
 
 ## Cereal
-data$refined_grain_cereal <- data$f.1458.0.0
+data$refined_grain_cereal <- data$f.1458.1.0
 ## Replace negative values with NA
 data$refined_grain_cereal[data$refined_grain_cereal < 0] <- NA
 ## Replace with 0 if non-refined grain
-data$refined_grain_cereal[data$f.1468.0.0 == "Bran cereal (e.g. All Bran, Branflakes)" |
-                          data$f.1468.0.0 == "Oat cereal (e.g. Ready Brek, porridge)" |
-                          data$f.1468.0.0 == "Muesli"] <- 0
+data$refined_grain_cereal[data$f.1468.1.0 == "Bran cereal (e.g. All Bran, Branflakes)" |
+                          data$f.1468.1.0 == "Oat cereal (e.g. Ready Brek, porridge)" |
+                          data$f.1468.1.0 == "Muesli"] <- 0
 ## Replace unknown with NA  
-data$refined_grain_cereal[data$f.1468.0.0 == "Prefer not to answer" |
-                          data$f.1468.0.0 == "Do not know" |
-                          is.na(data$f.1468.0.0 )] <- NA
+data$refined_grain_cereal[data$f.1468.1.0 == "Prefer not to answer" |
+                          data$f.1468.1.0 == "Do not know" |
+                          is.na(data$f.1468.1.0 )] <- NA
 
 
 data$refined_grain <- ifelse((data$refined_grain_bread + data$refined_grain_cereal) / 7 <= 1.5, 1,0)  ## refined grain intake less than 1.5
 
+## Estimate daily refined grain intake
+## Bread
+data$refined_grain_bread_baseline <- data$f.1438.0.0
+## Replace negative values with NA
+data$refined_grain_bread_baseline[data$refined_grain_bread_baseline < 0] <- NA
+
+## Replace with 0 if non-refined grain
+data$refined_grain_bread_baseline[data$f.1448.0.0 == "Wholemeal or wholegrain" | data$f.1448.0.0 == "Brown"] <- 0
+## Replace unknown with NA  
+data$refined_grain_bread_baseline[data$f.1448.0.0 == "Prefer not to answer" |
+                           data$f.1448.0.0 == "Do not know" |
+                           is.na(data$f.1448.0.0 )] <- NA
+
+## Cereal
+data$refined_grain_cereal_baseline <- data$f.1458.0.0
+## Replace negative values with NA
+data$refined_grain_cereal_baseline[data$refined_grain_cereal_baseline < 0] <- NA
+## Replace with 0 if non-refined grain
+data$refined_grain_cereal_baseline[data$f.1468.0.0 == "Bran cereal (e.g. All Bran, Branflakes)" |
+                            data$f.1468.0.0 == "Oat cereal (e.g. Ready Brek, porridge)" |
+                            data$f.1468.0.0 == "Muesli"] <- 0
+## Replace unknown with NA  
+data$refined_grain_cereal_baseline[data$f.1468.0.0 == "Prefer not to answer" |
+                            data$f.1468.0.0 == "Do not know" |
+                            is.na(data$f.1468.0.0 )] <- NA
+
+
+data$refined_grain_baseline <- ifelse((data$refined_grain_bread_baseline + data$refined_grain_cereal_baseline) / 7 <= 1.5, 1,0)  ## refined grain intake less than 1.5
+
 ## Calculate healthy diet
 data$unhealthy_diet <- ifelse((data$fruit + data$veg + data$fish + data$unprocessed_meat + data$processed_meat + data$whole_grain + data$refined_grain) < 4, 1,0) ## healthy diet score less than 4
 table(data$unhealthy_diet)
+
+data$unhealthy_diet_baseline <- ifelse((data$fruit_baseline + data$veg_baseline + data$fish_baseline + data$unprocessed_meat_baseline + data$processed_meat_baseline + data$whole_grain_baseline + data$refined_grain_baseline) < 4, 1,0) ## healthy diet score less than 4
+table(data$unhealthy_diet_baseline)
 
 ## Matching variables ----
 
@@ -557,17 +740,17 @@ data$general_health[data$f.2178.0.0 == "Poor"] <- 4
 
 ### Baseline chronic pain ----
 ## Number of chronic pain  body sites
-data$baseline_chronic_pain <- 0
-data$baseline_chronic_pain[data$f.6159.0.0 == "Prefer not to answer"] <- NA
+data$chronic_pain_baseline <- 0
+data$chronic_pain_baseline[data$f.6159.0.0 == "Prefer not to answer"] <- NA
 
-data$baseline_chronic_headache <- data$baseline_chronic_pain
-data$baseline_chronic_facial_pain <- data$baseline_chronic_pain
-data$baseline_chronic_neck_shoulder_pain <- data$baseline_chronic_pain
-data$baseline_chronic_back_pain <- data$baseline_chronic_pain
-data$baseline_chronic_stomach_abdominal_pain <- data$baseline_chronic_pain
-data$baseline_chronic_hip_pain <- data$baseline_chronic_pain
-data$baseline_chronic_knee_pain <- data$baseline_chronic_pain
-data$baseline_chronic_widespread_pain <- data$baseline_chronic_pain
+data$baseline_chronic_headache <- data$chronic_pain_baseline
+data$baseline_chronic_facial_pain <- data$chronic_pain_baseline
+data$baseline_chronic_neck_shoulder_pain <- data$chronic_pain_baseline
+data$baseline_chronic_back_pain <- data$chronic_pain_baseline
+data$baseline_chronic_stomach_abdominal_pain <- data$chronic_pain_baseline
+data$baseline_chronic_hip_pain <- data$chronic_pain_baseline
+data$baseline_chronic_knee_pain <- data$chronic_pain_baseline
+data$baseline_chronic_widespread_pain <- data$chronic_pain_baseline
 
 data$baseline_chronic_headache[data$f.3799.0.0 == "Yes"] <- 1 ## Record as having chronic pain if headache 3+ months
 data$baseline_chronic_headache[data$f.3799.0.0 == "No"] <- 0
@@ -595,16 +778,16 @@ data$baseline_chronic_widespread_pain[data$f.2956.0.0 == "No"] <- 0
 data$baseline_chronic_widespread_pain[data$f.2956.0.0 == "Do not know" | data$f.2956.0.0 == "Prefer not to answer"] <- NA
 
 ## Sum chronic pain sites
-data$baseline_chronic_pain <- data$baseline_chronic_headache + data$baseline_chronic_facial_pain + data$baseline_chronic_neck_shoulder_pain +
+data$chronic_pain_baseline <- data$baseline_chronic_headache + data$baseline_chronic_facial_pain + data$baseline_chronic_neck_shoulder_pain +
   data$baseline_chronic_back_pain + data$baseline_chronic_stomach_abdominal_pain + data$baseline_chronic_hip_pain + 
   data$baseline_chronic_knee_pain 
 
 ## If widespread chronic pain recorded, assign 8 chronic pain sites
-data$baseline_chronic_pain[data$baseline_chronic_widespread_pain == 1] <- 8
+data$chronic_pain_baseline[data$baseline_chronic_widespread_pain == 1] <- 8
 
 ## Dichotomize chronic pain
 ## Chronic pain site > 0 = chronic pain case
-data$baseline_chronic_pain <- ifelse(data$baseline_chronic_pain > 0, 1,0)
+data$chronic_pain_baseline <- ifelse(data$chronic_pain_baseline > 0, 1,0)
 
 
 ### Baseline depression ----
@@ -625,40 +808,44 @@ data$baseline_anhedonia <- recode(data$f.2060.0.0,
                                        'Do not know' = NaN,
                                        'Prefer not to answer' = NaN)
 
-data$baseline_depression <- data$baseline_depressed_mood + data$baseline_anhedonia
+data$depression_baseline <- data$baseline_depressed_mood + data$baseline_anhedonia
 
 ## Dichotomize depression
 ## PHQ-2 > 2 = case
-data$baseline_depression <- ifelse(data$baseline_depression > 2, 1,0)
-
-
-## Keep list of White and Irish British ----
-british_irish_keep <- na.omit(data$f.eid[data$f.21000.0.0 == "British" | data$f.21000.0.0 == "Irish"])
+data$depression_baseline <- ifelse(data$depression_baseline > 2, 1,0)
 
 ## Reduce dataframe ----
 
 data <- data %>%
   rename(EOP_date = `f.120128.0.0`,
-         touchscreen_date = `f.21822.0.0`) %>%
+         initial_touchscreen_date = `f.21822.0.0`,
+         second_touchscreen_date = `f.21822.1.0`) %>%
   select(f.eid, 
          followup_chronic_pain, followup_depression, comorbid_CPDep,
-         PA_low, bad_sleep, too_much_sleep, too_little_sleep, lonely, smoking, high_alcohol_consumption, obese, unhealthy_diet, 
-         age, sex, education, employment, deprivation, general_health,living_with_partner, baseline_chronic_pain, baseline_depression,
-         EOP_date, touchscreen_date)
+         PA_low, insufficient_sleep, lonely, smoking, high_alcohol_consumption, obese, unhealthy_diet, 
+         PA_low_baseline, insufficient_sleep_baseline, lonely_baseline, smoking_baseline, high_alcohol_consumption_baseline, obese_baseline, unhealthy_diet_baseline, 
+         age, sex, education, employment, deprivation, general_health,living_with_partner, chronic_pain_baseline, depression_baseline,
+         EOP_date, initial_touchscreen_date, second_touchscreen_date)
 dim(data)
 
 ## Format dates prior to saving file
-data$touchscreen_date <- as.Date(data$touchscreen_date)
+data$initial_touchscreen_date <- as.Date(data$initial_touchscreen_date)
+data$second_touchscreen_date <- as.Date(data$second_touchscreen_date)
 data$EOP_date <- as.Date(data$EOP_date)
 
 ## Recode NaN as NA ----
 data <- data %>% mutate_all(~ifelse(is.nan(.), NA, .))
 
+## Exclude withdrawn UKB participants or those with no data ----
+withdrawn_IDs <- read.csv("~/Desktop/PhD/projects/UKB_CP_MDD_lifestyle_counterfactual/resources/w4844_20241216.csv", header = F) 
+
+data <- data[!data$f.eid %in% withdrawn_IDs$V1,]
+data <- data[!is.na(data$initial_touchscreen_date),]
+
 ## Save file ---- 
 write.csv(data, "/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/data/UKB.csv", row.names = F)
-write.csv(EOP_keep, "/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/resources/EOP_keep.csv", row.names = F)
 write.csv(alcohol_exclude, "/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/resources/alcohol_exclude.csv", row.names = F)
-write.csv(british_irish_keep, "/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/resources/british_irish_keep.csv", row.names = F)
+
 
 
 
