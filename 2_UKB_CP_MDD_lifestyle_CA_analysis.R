@@ -2,7 +2,7 @@ library(nnet)
 library(lubridate)
 library(mice)
 library(nnet)
-library(WeightIt)
+library(MatchThem)
 library(ggplot2)
 library(survey)
 library(mitools)
@@ -10,8 +10,7 @@ library(dplyr)
 set.seed(151097)
 
 ## Load in UKB data ----
-data <- read.csv("/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/data/UKB_updated.csv")
-EOP_keep <- read.csv("/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/resources/EOP_keep.csv")
+data <- read.csv("/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/data/UKB.csv")
 alcohol_exclude <- read.csv("/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/resources/alcohol_exclude.csv")
 
 ## Data Prep ----
@@ -19,6 +18,9 @@ alcohol_exclude <- read.csv("/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_
 ## Remove ineligible participants from analysis
 data_eligible <- data[!is.na(data$initial_touchscreen_date) & !is.na(data$second_touchscreen_date) & !is.na(data$EOP_date),]
 data_eligible <- data_eligible[!data_eligible$f.eid %in% alcohol_exclude$x,]
+
+## Save eligible data
+write.csv(data_eligible, "/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/data/UKB_eligible.csv", row.names = F)
 
 ### Convert comorbidity followup to numeric (required format for MI)
 data_eligible$comorbid_CPDep <- recode(data_eligible$comorbid_CPDep,
@@ -90,7 +92,7 @@ for (exposure in exposures){
          weightthem(as.formula(f), 
                     datasets = data_eligible_full_imputed_complete_treatment, 
                     method = "glm",
-                    estimand = "ATE")
+                    estimand = "ATT")
          )
   ## Love plot
   assign(paste0(exposure, "_full_love_plot"),
@@ -125,7 +127,7 @@ for (sex in c("male", "female")){
            weightthem(as.formula(f), 
                      datasets = data_eligible_full_imputed_complete_treatment, 
                      method = "glm",
-                     estimand = "ATE")
+                     estimand = "ATT")
     )
     
     ## Love plot
@@ -282,7 +284,7 @@ for (exposure in exposures){
                  weightit = W)
   })
   
-  ## Get marginal effetcs
+  ## Get marginal effects
   comp.imp <- lapply(fits, function(fit) {
     marginaleffects::avg_comparisons(fit, 
                                      newdata = subset(fit$model,get(exposure) == 1),
@@ -387,9 +389,9 @@ for (sex in c("male", "female")){
 
 ## Adjust for multiple comparisons ----
 ## Get n total comparisons
-n_comparisons <- (nrow(CPDep_full_results) + nrow(CP_Dep_full_results) * 3)
+n_comparisons <- (nrow(CPDep_full_results) + nrow(CP_Dep_full_results))
 
-CP_Dep_full_results$p_adjust <- p.adjust(CP_Dep_full_results$`P-value`, method = "bonferroni", n = length(exposures))
+CP_Dep_full_results$p_adjust <- p.adjust(CP_Dep_full_results$`P-value`, method = "bonferroni", n = n_comparisons)
 CPDep_full_results$p_adjust <- p.adjust(CPDep_full_results$`P-value`, method = "bonferroni", n = n_comparisons)
 
 CP_Dep_male_results$p_adjust <- p.adjust(CP_Dep_male_results$`P-value`, method = "bonferroni", n = n_comparisons)
@@ -400,25 +402,36 @@ CPDep_female_results$p_adjust <- p.adjust(CPDep_female_results$`P-value`, method
 
 
 ## Save results ----
-write.csv(CP_Dep_full_results, "/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/CP_Dep_full_results.csv", row.names = F)
-write.csv(CPDep_full_results, "/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/CPDep_full_results.csv", row.names = F)
+# write.csv(CP_Dep_full_results, "/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/CP_Dep_full_results.csv", row.names = F)
+# write.csv(CPDep_full_results, "/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/CPDep_full_results.csv", row.names = F)
+# 
+# write.csv(CP_Dep_male_results, "/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/CP_Dep_male_results.csv", row.names = F)
+# write.csv(CPDep_male_results, "/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/CPDep_male_results.csv", row.names = F)
+# 
+# write.csv(CP_Dep_female_results, "/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/CP_Dep_female_results.csv", row.names = F)
+# write.csv(CPDep_female_results, "/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/CPDep_female_results.csv", row.names = F)
+# 
+# write.csv(missingness_table, "/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/data_missingness.csv", row.names = T)
 
-write.csv(CP_Dep_male_results, "/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/CP_Dep_male_results.csv", row.names = F)
-write.csv(CPDep_male_results, "/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/CPDep_male_results.csv", row.names = F)
+write.csv(CP_Dep_full_results, "~/Desktop/PhD/projects/UKB_CP_MDD_lifestyle_counterfactual/output/CP_Dep_full_results.csv", row.names = F)
+write.csv(CPDep_full_results, "~/Desktop/PhD/projects/UKB_CP_MDD_lifestyle_counterfactual/output/CPDep_full_results.csv", row.names = F)
 
-write.csv(CP_Dep_female_results, "/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/CP_Dep_female_results.csv", row.names = F)
-write.csv(CPDep_female_results, "/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/CPDep_female_results.csv", row.names = F)
+write.csv(CP_Dep_male_results, "~/Desktop/PhD/projects/UKB_CP_MDD_lifestyle_counterfactual/output/CP_Dep_male_results.csv", row.names = F)
+write.csv(CPDep_male_results, "~/Desktop/PhD/projects/UKB_CP_MDD_lifestyle_counterfactual/output/CPDep_male_results.csv", row.names = F)
 
-write.csv(missingness_table, "/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/data_missingness.csv", row.names = T)
+write.csv(CP_Dep_female_results, "~/Desktop/PhD/projects/UKB_CP_MDD_lifestyle_counterfactual/output/CP_Dep_female_results.csv", row.names = F)
+write.csv(CPDep_female_results, "~/Desktop/PhD/projects/UKB_CP_MDD_lifestyle_counterfactual/output/CPDep_female_results.csv", row.names = F)
+
+write.csv(missingness_table, "~/Desktop/PhD/projects/UKB_CP_MDD_lifestyle_counterfactual/output/data_missingness.csv", row.names = T)
 
 for (plot in ls(pattern="love_plot")){
   
-  jpeg(file = paste0("/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/balancing/", plot, ".jpg"), width = 700, height = 700)
+  jpeg(file = paste0("~/Desktop/PhD/projects/UKB_CP_MDD_lifestyle_counterfactual/output/balancing/", plot, ".jpg"), width = 700, height = 700)
   print(get(plot))
   dev.off()
 }
 
 for (table in ls(pattern="bal_table|observation_table")){
-  write.csv(get(table), paste0("/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/balancing/", table, ".csv"))
+  write.csv(get(table), paste0("~/Desktop/PhD/projects/UKB_CP_MDD_lifestyle_counterfactual/output/balancing/", table, ".csv"))
 }
 

@@ -7,31 +7,28 @@ library(dplyr)
 library(ggh4x)
 
 ## Load in data and results ----
-CP_Dep_full_results <- read.csv("/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/CP_Dep_full_results.csv")
-CPDep_full_results <- read.csv("/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/CPDep_full_results.csv")
+CP_Dep_full_results <- read.csv("~/Desktop/PhD/projects/UKB_CP_MDD_lifestyle_counterfactual/output/CP_Dep_full_results.csv")
+CPDep_full_results <- read.csv("~/Desktop/PhD/projects/UKB_CP_MDD_lifestyle_counterfactual/output/CPDep_full_results.csv")
 
-CP_Dep_male_results <- read.csv("/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/CP_Dep_male_results.csv")
-CPDep_male_results <- read.csv("/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/CPDep_male_results.csv")
+CP_Dep_male_results <- read.csv("~/Desktop/PhD/projects/UKB_CP_MDD_lifestyle_counterfactual/output/CP_Dep_male_results.csv")
+CPDep_male_results <- read.csv("~/Desktop/PhD/projects/UKB_CP_MDD_lifestyle_counterfactual/output/CPDep_male_results.csv")
 
-CP_Dep_female_results <- read.csv("/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/CP_Dep_female_results.csv")
-CPDep_female_results <- read.csv("/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/CPDep_female_results.csv")
+CP_Dep_female_results <- read.csv("~/Desktop/PhD/projects/UKB_CP_MDD_lifestyle_counterfactual/output/CP_Dep_female_results.csv")
+CPDep_female_results <- read.csv("~/Desktop/PhD/projects/UKB_CP_MDD_lifestyle_counterfactual/output/CPDep_female_results.csv")
 
-data_eligible <- read.csv("/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/data/UKB_eligible.csv")
 data <- read.csv("/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/data/UKB.csv")
-EOP_keep <- read.csv("/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/resources/EOP_keep.csv")
 alcohol_exclude <- read.csv("/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/resources/alcohol_exclude.csv")
-#british_irish_keep <- read.csv("/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/resources/british_irish_keep.csv")
 
 ## Load in observation tables
-observation_table_files <- list.files(path = "/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/balancing/", pattern = "observation_table")
-x_coord_up <- 0.1
-x_coord_middle <- 0.2
-x_coord_down <- 0.1
-box_position <- "up"
+observation_table_files <- list.files(path = "~/Desktop/PhD/projects/UKB_CP_MDD_lifestyle_counterfactual/output/balancing/", pattern = "observation_table")
+x_coord_up <- 0.2
+x_coord_middle <- 0.1
+x_coord_down <- 0.2
+box_position <- "middle"
 
 for (observation_table in sort(observation_table_files[!grepl("sensitivity_PA_low", observation_table_files)])){
   
-  table <- read.csv(paste0("/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/balancing/", observation_table ))
+  table <- read.csv(paste0("~/Desktop/PhD/projects/UKB_CP_MDD_lifestyle_counterfactual/output/balancing/", observation_table ))
   
   ## Get sample
   if (grepl("female", observation_table)){
@@ -49,9 +46,9 @@ for (observation_table in sort(observation_table_files[!grepl("sensitivity_PA_lo
   } else if (grepl("too_much_sleep", observation_table)){
     exposure <- "Excessive Sleep" 
     box_name <- "too_much_sleep_box" 
-  } else if (grepl("too_little_sleep", observation_table)){
+  } else if (grepl("insufficient_sleep", observation_table)){
     exposure <- "Insufficient Sleep" 
-    box_name <- "too_little_sleep_box" 
+    box_name <- "insufficient_sleep_box" 
   } else if (grepl("high_alcohol_consumption", observation_table)){
     exposure <- "High Alcohol Consumption" 
     box_name <- "high_alcohol_consumption_box" 
@@ -71,20 +68,20 @@ for (observation_table in sort(observation_table_files[!grepl("sensitivity_PA_lo
   
   ## Get sample sizes in each sample
   if (grepl("full", observation_table)){
-    full_n_unmatched_exposed <- table[1, "X1"]
-    full_n_unmatched_unexposed <- table[1, "X0"]
-    full_n_matched_exposed <- table[4, "X1"]
-    full_n_matched_unexposed <- table[4, "X0"]
+    full_n_unadjusted_exposed <- table[1, "X1"]
+    full_n_unadjusted_unexposed <- table[1, "X0"]
+    full_n_adjusted_exposed <- table[2, "X1"]
+    full_n_adjusted_unexposed <- table[2, "X0"]
   } else if (grepl("female", observation_table)){
-    female_n_unmatched_exposed <- table[1, "X1"]
-    female_n_unmatched_unexposed <- table[1, "X0"]
-    female_n_matched_exposed <- table[4, "X1"]
-    female_n_matched_unexposed <- table[4, "X0"]
+    female_n_unadjusted_exposed <- table[1, "X1"]
+    female_n_unadjusted_unexposed <- table[1, "X0"]
+    female_n_adjusted_exposed <- table[2, "X1"]
+    female_n_adjusted_unexposed <- table[2, "X0"]
   } else if (grepl("_male", observation_table)){
-    male_n_unmatched_exposed <- table[1, "X1"]
-    male_n_unmatched_unexposed <- table[1, "X0"]
-    male_n_matched_exposed <- table[4, "X1"]
-    male_n_matched_unexposed <- table[4, "X0"]
+    male_n_unadjusted_exposed <- table[1, "X1"]
+    male_n_unadjusted_unexposed <- table[1, "X0"]
+    male_n_adjusted_exposed <- table[2, "X1"]
+    male_n_adjusted_unexposed <- table[2, "X0"]
   }
   
   if  (grepl("_male", observation_table)){ ## Male sample observation table read last for each exposure, only run when all tables have been read
@@ -110,28 +107,28 @@ for (observation_table in sort(observation_table_files[!grepl("sensitivity_PA_lo
     assign(box_name, boxGrob(glue(paste(exposure, "Sample Size"),
                             "",
                             "Full sample exposed/unexposed",
-                            "Unmatched: {full_n_unmatched_exposed}/{full_n_unmatched_unexposed}",
-                            "Matched: {full_n_matched_exposed}/{full_n_matched_unexposed}",
+                            "Unadjusted: {full_n_unadjusted_exposed}/{full_n_unadjusted_unexposed}",
+                            "Adjusted: {full_n_adjusted_exposed}/{full_n_adjusted_unexposed}",
                             "",
                             "Female sample exposed/unexposed:",
-                            "Unmatched: {female_n_unmatched_exposed}/{female_n_unmatched_unexposed}",
-                            "Matched: {female_n_matched_exposed}/{female_n_matched_unexposed}",
+                            "Unadjusted: {female_n_unadjusted_exposed}/{female_n_unadjusted_unexposed}",
+                            "Adjusted: {female_n_adjusted_exposed}/{female_n_adjusted_unexposed}",
                             "",
                             "Male sample exposed/unexposed:",
-                            "Unmatched: {male_n_unmatched_exposed}/{male_n_unmatched_unexposed}",
-                            "Matched: {male_n_matched_exposed}/{male_n_matched_unexposed}",
-                            full_n_unmatched_exposed = round(full_n_unmatched_exposed, 2),
-                            full_n_unmatched_unexposed = round(full_n_unmatched_unexposed, 2),
-                            full_n_matched_exposed = round(full_n_matched_exposed, 2),
-                            full_n_matched_unexposed = round(full_n_matched_unexposed, 2),
-                            female_n_unmatched_exposed = round(female_n_unmatched_exposed, 2),
-                            female_n_unmatched_unexposed = round(female_n_unmatched_unexposed, 2),
-                            female_n_matched_exposed = round(female_n_matched_exposed, 2),
-                            female_n_matched_unexposed = round(female_n_matched_unexposed, 2),
-                            male_n_unmatched_exposed = round(male_n_unmatched_exposed, 2),
-                            male_n_unmatched_unexposed = round(male_n_unmatched_unexposed, 2),
-                            male_n_matched_exposed = round(male_n_matched_exposed, 2),
-                            male_n_matched_unexposed = round(male_n_matched_unexposed, 2),
+                            "Unadjusted: {male_n_unadjusted_exposed}/{male_n_unadjusted_unexposed}",
+                            "Adjusted: {male_n_adjusted_exposed}/{male_n_adjusted_unexposed}",
+                            full_n_unadjusted_exposed = round(full_n_unadjusted_exposed, 2),
+                            full_n_unadjusted_unexposed = round(full_n_unadjusted_unexposed, 2),
+                            full_n_adjusted_exposed = round(full_n_adjusted_exposed, 2),
+                            full_n_adjusted_unexposed = round(full_n_adjusted_unexposed, 2),
+                            female_n_unadjusted_exposed = round(female_n_unadjusted_exposed, 2),
+                            female_n_unadjusted_unexposed = round(female_n_unadjusted_unexposed, 2),
+                            female_n_adjusted_exposed = round(female_n_adjusted_exposed, 2),
+                            female_n_adjusted_unexposed = round(female_n_adjusted_unexposed, 2),
+                            male_n_unadjusted_exposed = round(male_n_unadjusted_exposed, 2),
+                            male_n_unadjusted_unexposed = round(male_n_unadjusted_unexposed, 2),
+                            male_n_adjusted_exposed = round(male_n_adjusted_exposed, 2),
+                            male_n_adjusted_unexposed = round(male_n_adjusted_unexposed, 2),
                             .sep = "\n"), 
                        y = y_coord, x = x_coord, bjust = c(0.5, 0.5),
                        just = "left",
@@ -141,32 +138,44 @@ for (observation_table in sort(observation_table_files[!grepl("sensitivity_PA_lo
 }
 
 ## Sample flow chart ----
-## Get overlap of participants with EOP data who also drink and are british/irish
-eligible_keep <- EOP_keep$x[!EOP_keep$x %in% alcohol_exclude$x]
-#eligible_keep <- EOP_alcohol_keep[EOP_alcohol_keep %in% british_irish_keep$x]
+## Total number of participants
+n_total <- length(na.omit(data$initial_touchscreen_date))
+## N participants with/without second touchscrren
+n_no_second_touchscreen <- sum(is.na(data$second_touchscreen_date))
+n_second_touchscreen <- sum(!is.na(data$second_touchscreen_date))
+## Number of participants with/without EOP (with second touchscreen)
+n_no_EOP_touchscreen <- sum(is.na(data$EOP_date) & !is.na(data$second_touchscreen_date))
+n_EOP_touchscreen <- sum(!is.na(data$EOP_date) & !is.na(data$second_touchscreen_date))
+## Number of drinkers/non drinker (with second touchscreen and EOP)
+n_non_drinker <- sum(!is.na(data$EOP_date) & !is.na(data$second_touchscreen_date) & data$f.eid %in% alcohol_exclude$x)
+n_eligible <- sum(!is.na(data$EOP_date) & !is.na(data$second_touchscreen_date) & !data$f.eid %in% alcohol_exclude$x)
+## Total number excluded
+n_excluded <- n_total-n_eligible
 
 UKB_pop <- boxGrob(glue("UK Biobank Sample",
                         "n = {pop}",
-                        pop = txtInt(nrow(data)),
+                        pop = txtInt(n_total),
                         .sep = "\n"), 
                    y = 0.95, x = 0.5, bjust = c(0.5, 0.5),
                    just = "centre")
 
 eligible_pop <- boxGrob(glue("Eligible",
                              "n = {pop}",
-                             pop = txtInt(length(eligible_keep)),
+                             pop = txtInt(n_eligible),
                              .sep = "\n"), 
                         y = 0.85, x = 0.5, bjust = c(0.5, 0.5),
                         just = "centre")
 
 exclude_pop <- boxGrob(glue("Excluded (n = {tot}):",
-                            " - No EOP: {no_EOP}",
-                            " - Non-drinker (in EOP sample): {non_drinker}",
-                            tot = txtInt(nrow(data) - length(eligible_keep)),
-                            no_EOP = txtInt(nrow(data) - nrow(EOP_keep)),
-                            non_drinker = txtInt(nrow(EOP_keep) - length(eligible_keep)),
+                            " - No Second Assessment: {no_second_assessment}",
+                            " - No EOP (in second assessment sample): {no_EOP}",
+                            " - Non-drinker (in second assessment and EOP sample)): {non_drinker}",
+                            tot = txtInt(n_excluded),
+                            no_second_assessment = txtInt(n_no_second_touchscreen),
+                            no_EOP = txtInt(n_no_EOP_touchscreen),
+                            non_drinker = txtInt(n_non_drinker),
                             .sep = "\n"), 
-                       y = 0.90, x = 0.75, bjust = c(0.5, 0.5),
+                       y = 0.9, x = 0.7, bjust = c(0.5, 0.5),
                        just = "left")
 
 grid.newpage()
@@ -180,16 +189,14 @@ low_PA_box
 smoking_box
 high_alcohol_consumption_box
 unhealthy_diet_box
-too_much_sleep_box
-too_little_sleep_box
+insufficient_sleep_box
 obese_box
 
 # connectGrob(UKB_pop, eligible_pop, "N")
 # connectGrob(UKB_pop, exclude_pop, "L")
 # connectGrob(eligible_pop, loneliness_box, "N")
 # connectGrob(eligible_pop, obese_box, "N")
-# connectGrob(eligible_pop, too_much_sleep_box, "N")
-# connectGrob(eligible_pop, too_little_sleep_box, "N")
+# connectGrob(eligible_pop, insufficient_sleep_box, "N")
 # connectGrob(eligible_pop, low_PA_box, "N")
 # connectGrob(eligible_pop, unhealthy_diet_box, "N")
 # connectGrob(eligible_pop, smoking_box, "N")
@@ -210,7 +217,7 @@ CP_Dep_results <- do.call("rbind", list(CP_Dep_full_results, CP_Dep_female_resul
 CPDep_results <- do.call("rbind", list(CPDep_full_results, CPDep_female_results, CPDep_male_results))
 
 CP_Dep_results$exposure <- recode(CP_Dep_results$exposure,
-                                  "too_little_sleep" = "Insufficient sleep",
+                                  "insufficient_sleep" = "Insufficient sleep",
                                   "too_much_sleep" = "Excessive sleep",
                                   "high_alcohol_consumption" = "High alcohol consumption",
                                   "lonely" = "Loneliness",
@@ -220,7 +227,7 @@ CP_Dep_results$exposure <- recode(CP_Dep_results$exposure,
                                   "unhealthy_diet" = "Unhealthy diet")
 
 CPDep_results$exposure <- recode(CPDep_results$exposure,
-                                 "too_little_sleep" = "Insufficient sleep",
+                                 "insufficient_sleep" = "Insufficient sleep",
                                  "too_much_sleep" = "Excessive sleep",
                                   "high_alcohol_consumption" = "High alcohol consumption",
                                   "lonely" = "Loneliness",
@@ -242,35 +249,35 @@ CPDep_results$Term <- recode(CPDep_results$Term,
 ## Max distance between covariates after balancing----
 
 ## Load in observation tables
-balancing_table_files <- list.files(path = "/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/balancing/", pattern = "bal_table")
+balancing_table_files <- list.files(path = "~/Desktop/PhD/projects/UKB_CP_MDD_lifestyle_counterfactual/output/balancing/", pattern = "bal_table")
 max_diff <- NULL
 
 for (balancing_table in sort(balancing_table_files)){
-  table <- read.csv(paste0("/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/balancing/", balancing_table))
-  if (abs(max(table$Max.Diff.Adj[-1])) > 0.1){
+  table <- read.csv(paste0("~/Desktop/PhD/projects/UKB_CP_MDD_lifestyle_counterfactual/output/balancing/", balancing_table))
+  if (abs(max(table$Max.Diff.Adj[-1])) > 0.02){
     max_diff <- c(max_diff, balancing_table)
   }
 }
 
-
 ## Descriptive statistics of age and sex in outcomes ----
 ## Entire sample
+data_eligible <- data[!is.na(data$EOP_date) & !is.na(data$second_touchscreen_date) & !data$f.eid %in% alcohol_exclude$x,]
 n_full <- nrow(data_eligible)
 age_full <- round(mean(data_eligible$age, na.rm = T), 2)
 n_females_full <- sum(data_eligible$sex == 1, na.rm = T)
 prop_females_full <- round(n_females_full/nrow(data_eligible), 4) *100
 ## Chronic Pain
-n_CP <- sum(data_eligible$followup_chronic_pain>0, na.rm = T)
-prop_CP <- round(n_CP/sum(data_eligible$followup_chronic_pain>=0, na.rm = T), 4) *100
-age_CP <- round(mean(data_eligible$age[data_eligible$followup_chronic_pain>0], na.rm = T), 2)
-n_females_CP <- sum(data_eligible$followup_chronic_pain>0 & data_eligible$sex == 1, na.rm = T)
-prop_females_CP <- round(n_females_CP/sum(data_eligible$followup_chronic_pain>0, na.rm = T), 4) *100
+n_CP <- sum(data_eligible$followup_chronic_pain==1, na.rm = T)
+prop_CP <- round(n_CP/nrow(data_eligible), 4) *100
+age_CP <- round(mean(data_eligible$age[data_eligible$followup_chronic_pain==1], na.rm = T), 2)
+n_females_CP <- sum(data_eligible$followup_chronic_pain==1 & data_eligible$sex == 1, na.rm = T)
+prop_females_CP <- round(n_females_CP/sum(data_eligible$followup_chronic_pain==1, na.rm = T), 4) *100
 ## Depression
-n_Dep <- sum(data_eligible$followup_depression>2, na.rm = T)
-prop_Dep <- round(n_Dep/sum(data_eligible$followup_depression>=0, na.rm = T), 4) *100
-age_Dep <- round(mean(data_eligible$age[data_eligible$followup_depression>2], na.rm = T), 2)
-n_females_Dep <- sum(data_eligible$followup_depression>2 & data_eligible$sex == 1, na.rm = T)
-prop_females_Dep <- round(n_females_Dep/sum(data_eligible$followup_depression>2, na.rm = T), 4) *100
+n_Dep <- sum(data_eligible$followup_depression==1, na.rm = T)
+prop_Dep <- round(n_Dep/nrow(data_eligible), 4) *100
+age_Dep <- round(mean(data_eligible$age[data_eligible$followup_depression==1], na.rm = T), 2)
+n_females_Dep <- sum(data_eligible$followup_depression==1 & data_eligible$sex == 1, na.rm = T)
+prop_females_Dep <- round(n_females_Dep/sum(data_eligible$followup_depression==1, na.rm = T), 4) *100
 ## CP-Dep-
 n_noCPnoDep <- sum(data_eligible$comorbid_CPDep == "CP-Dep-", na.rm = T)
 prop_noCPnoDep <- round(n_noCPnoDep/length(na.omit(data_eligible$comorbid_CPDep)), 4) *100
@@ -345,11 +352,11 @@ CP_Dep_results_plot <- ggplot(CP_Dep_results[CP_Dep_results$exposure != "sensiti
         legend.text = element_text(size = 12),
         legend.position="bottom",
         legend.box = "vertical") + 
-  geom_hline(yintercept=0, linetype="dashed", color = "black") +
+  geom_hline(yintercept=1, linetype="dashed", color = "black") +
   coord_flip() +
   facet_wrap2(vars(sample)) +
   labs(x = "",
-       y = "Coefficient Estimate",
+       y = "Odds Ratio",
        title = "",
        colour = "Outcome:",
        shape = expression("P"[Adjusted] ~ " < 0.05:"))
@@ -370,59 +377,24 @@ CPDep_results_plot <- ggplot(CPDep_results[CPDep_results$exposure != "sensitivit
         legend.text = element_text(size = 12),
         legend.position="bottom",
         legend.box = "vertical") + 
-  geom_hline(yintercept=0, linetype="dashed", color = "black") +
+  geom_hline(yintercept=1, linetype="dashed", color = "black") +
   coord_flip() +
   facet_wrap2(vars(sample)) +
   labs(x = "",
-       y = "Coefficient Estimate",
+       y = "Odds Ratio",
        title = "",
        colour = "Outcome:",
        shape = expression("P"[Adjusted] ~ " < 0.05:"))
 
-## Plot sensitivity ----
-CP_Dep_results_sensitivity_plot <- ggplot(CP_Dep_results[grepl("PA_low|Low physical activity", CP_Dep_results$exposure),], aes(x=exposure, y=`Coefficient.Estimate`, shape=significant,colour=as.factor(outcome))) +
-  geom_point(aes(y=`Coefficient.Estimate`),size=3, position = position_dodge(0.3)) +
-  geom_errorbar(aes(ymin=`Lower_95CI`, ymax=`Upper_95CI`), width=0, position = position_dodge(0.3)) +
-  theme_minimal() +
-  theme(panel.spacing = unit(3, "lines"), 
-        text = element_text(size = 15),
-        legend.title = element_text(size = 12),
-        legend.text = element_text(size = 10)) + 
-  geom_hline(yintercept=0, linetype="dashed", color = "black") +
-  coord_flip() +
-  facet_wrap2(vars(sample)) +
-  labs(x = "",
-       y = "Coefficient Estimate",
-       title = "",
-       colour = "Outcome:",
-       shape = expression("P"[Adjusted] ~ " < 0.05:"))
-
-
-CPDep_results_sensitivity_plot <- ggplot(CPDep_results[grepl("PA_low|Low physical activity", CPDep_results$exposure),], aes(x=exposure, y=`Coefficient.Estimate`, shape=significant,colour=as.factor(Term))) +
-  geom_point(aes(y=`Coefficient.Estimate`),size=3, position = position_dodge(0.3)) +
-  geom_errorbar(aes(ymin=`Lower_95CI`, ymax=`Upper_95CI`), width=0, position = position_dodge(0.3)) +
-  theme_minimal() +
-  theme(panel.spacing = unit(3, "lines"), 
-        text = element_text(size = 15),
-        legend.title = element_text(size = 15),
-        legend.text = element_text(size = 10)) + 
-  geom_hline(yintercept=0, linetype="dashed", color = "black") +
-  coord_flip() +
-  facet_wrap2(vars(sample)) +
-  labs(x = "",
-       y = "Coefficient Estimate",
-       title = "",
-       colour = "Outcome:",
-       shape = expression("P"[Adjusted] ~ " < 0.05:"))
 
 ## Save descriptive stats and results plots ----
-write.csv(descriptive_statistics, "/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/descriptive_statistics.csv", row.names = F)
+write.csv(descriptive_statistics, "~/Desktop/PhD/projects/UKB_CP_MDD_lifestyle_counterfactual/output/descriptive_statistics.csv", row.names = F)
 
-jpeg("/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/CP_Dep_results_plot.jpg", width=35,height=35,units="cm",res=1000)
+jpeg("~/Desktop/PhD/projects/UKB_CP_MDD_lifestyle_counterfactual/output/CP_Dep_results_plot.jpg", width=35,height=35,units="cm",res=1000)
 CP_Dep_results_plot
 dev.off()
 
-jpeg("/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/CPDep_results_plot.jpg",width=35,height=35,units="cm",res=1000)
+jpeg("~/Desktop/PhD/projects/UKB_CP_MDD_lifestyle_counterfactual/output/CPDep_results_plot.jpg",width=35,height=35,units="cm",res=1000)
 CPDep_results_plot
 dev.off()
 
