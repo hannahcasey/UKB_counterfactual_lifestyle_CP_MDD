@@ -37,11 +37,11 @@ table_counter <- 1
 variable_table <- read.xlsx(xlsxFile = "~/Desktop/PhD/projects/UKB_CP_MDD_lifestyle_counterfactual/writeup/variable_table.xlsx", fillMergedCells = TRUE, colNames = TRUE)
 
 table <- flextable(variable_table) %>%
-  merge_v(j = ~ Description + Field.ID + Original.coding) %>% ## Merge cells
+  merge_v(j = ~ Description + Field.ID + Coding) %>% ## Merge cells
   autofit() %>%
   fontsize(size = 10) %>%
   merge_h() %>%
-  bg(i = c(1, 18, 33), bg = "lightgrey", part = "body") %>%
+  bg(i = c(1, 18, 37, 41), bg = "lightgrey", part = "body") %>%
   theme_booktabs() %>%
   vline() %>%
   hline()
@@ -67,9 +67,9 @@ cat(paste0("Table S", table_counter, ". Table of matching, outcome and exposure 
 
 ```{r Balancing tables, echo=F, results='asis'}
 
-observation_table_files <- list.files(path = "/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/balancing/", pattern = "_observation_table.csv")
+observation_table_files <- list.files(path = "~/Desktop/PhD/projects/UKB_CP_MDD_lifestyle_counterfactual/output/balancing/", pattern = "_observation_table.csv")
 
-bal_table_files <- list.files(path = "/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/balancing/", pattern = "bal_table")
+bal_table_files <- list.files(path = "~/Desktop/PhD/projects/UKB_CP_MDD_lifestyle_counterfactual/output/balancing/", pattern = "bal_table")
 
 ## Sort table lists so order is: full, female, male
 observation_table_files_sorted <- c(grep("_full_", observation_table_files, value = T), grep("_female_", observation_table_files, value = T), grep("_male_", observation_table_files, value = T))
@@ -82,7 +82,7 @@ for (file in observation_table_files_sorted){
   
   table_counter <- table_counter + 1
   
-  table <- read.csv(paste0("/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/balancing/", file ))
+  table <- read.csv(paste0("~/Desktop/PhD/projects/UKB_CP_MDD_lifestyle_counterfactual/output/balancing/", file ))
   names(table) <- c("Sample", "Non-exposure", "Exposure")
   
   f <- flextable(table) %>%
@@ -102,19 +102,17 @@ for (file in observation_table_files_sorted){
   ## Get exposure
   if (grepl("PA_low_", file)){
    exposure <- "physical activity" 
-  } else if (grepl("too_little_sleep", file)){
+  } else if (grepl("insufficient_sleep_", file)){
     exposure <- "insufficient sleep" 
-  } else if (grepl("too_much_sleep", file)){
-    exposure <- "excessive sleep" 
-  } else if (grepl("high_alcohol_consumption", file)){
+  } else if (grepl("high_alcohol_consumption_", file)){
     exposure <- "high alcohol consumption" 
   } else if (grepl("smoking", file)){
     exposure <- "smoking" 
-  } else if (grepl("obese", file)){
+  } else if (grepl("obese_", file)){
     exposure <- "obese" 
   } else if (grepl("lonely_", file)){
     exposure <- "loneliness" 
-  } else if (grepl("unhealthy_diet", file)){
+  } else if (grepl("unhealthy_diet_", file)){
     exposure <- "unhealthy diet" 
   }
   
@@ -129,7 +127,7 @@ for (file in bal_table_files_sorted){
   
   table_counter <- table_counter + 1
   
-  table <- read.csv(paste0("/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/balancing/", file ))
+  table <- read.csv(paste0("~/Desktop/PhD/projects/UKB_CP_MDD_lifestyle_counterfactual/output/balancing/", file ))
   names(table)[1] <- "Variables"
   
   ## Round numbers
@@ -152,19 +150,17 @@ for (file in bal_table_files_sorted){
   ## Get exposure
   if (grepl("PA_low_", file)){
    exposure <- "physical activity" 
-  } else if (grepl("too_little_sleep", file)){
+  } else if (grepl("insufficient_sleep_", file)){
     exposure <- "insufficient sleep" 
-  } else if (grepl("too_much_sleep", file)){
-    exposure <- "excessive sleep" 
-  } else if (grepl("high_alcohol_consumption", file)){
+  } else if (grepl("high_alcohol_consumption_", file)){
     exposure <- "high alcohol consumption" 
   } else if (grepl("smoking", file)){
     exposure <- "smoking" 
-  } else if (grepl("obese", file)){
+  } else if (grepl("obese_", file)){
     exposure <- "obese" 
-  } else if (grepl("lonely", file)){
+  } else if (grepl("lonely_", file)){
     exposure <- "loneliness" 
-  } else if (grepl("unhealthy_diet", file)){
+  } else if (grepl("unhealthy_diet_", file)){
     exposure <- "unhealthy diet" 
   }
   
@@ -179,7 +175,7 @@ for (file in bal_table_files_sorted){
 
 ```{r Balancing plots, echo=F, results='asis'}
 
-love_plot_paths <- list.files("/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/balancing",full.names = T, pattern = "love_plot")
+love_plot_paths <- list.files("~/Desktop/PhD/projects/UKB_CP_MDD_lifestyle_counterfactual/output/balancing",full.names = T, pattern = "love_plot")
 
 love_plot_paths_sorted <- c(grep("_full_", love_plot_paths, value = T), grep("_female_", love_plot_paths, value = T), grep("_male_", love_plot_paths, value = T))
   
@@ -206,20 +202,18 @@ for (plot_path in love_plot_paths_sorted){
   ## Get exposure
   if (grepl("PA_low_", file)){
    exposure <- "physical activity" 
-  } else if (grepl("too_little_sleep", file)){
+  } else if (grepl("insufficient_sleep_", file)){
     exposure <- "insufficient sleep" 
-  } else if (grepl("too_much_sleep", file)){
-    exposure <- "excessive sleep" 
-  } else if (grepl("high_alcohol_consumption", file)){
-    exposure <- "high alcohol consumption"
+  } else if (grepl("high_alcohol_consumption_", file)){
+    exposure <- "high alcohol consumption" 
   } else if (grepl("smoking", file)){
-    exposure <- "smoking"
-  } else if (grepl("obese", file)){
-    exposure <- "obese"
+    exposure <- "smoking" 
+  } else if (grepl("obese_", file)){
+    exposure <- "obese" 
   } else if (grepl("lonely_", file)){
-    exposure <- "loneliness"
-  } else if (grepl("unhealthy_diet", file)){
-    exposure <- "unhealthy diet"
+    exposure <- "loneliness" 
+  } else if (grepl("unhealthy_diet_", file)){
+    exposure <- "unhealthy diet" 
   }
   
   cat("<center>")
@@ -236,7 +230,7 @@ for (plot_path in love_plot_paths_sorted){
 ## 2.2. Data Missingness
 
 ```{r data missingness, echo=F, results='asis'}
-data_missingness <- read.csv("/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/data_missingness.csv")
+data_missingness <- read.csv("~/Desktop/PhD/projects/UKB_CP_MDD_lifestyle_counterfactual/output/data_missingness.csv")
 
 names(data_missingness) <- c("Variable", "Missingness (%)")
 f <- flextable(data_missingness) %>%
@@ -256,7 +250,7 @@ cat(paste0("Table S", table_counter, ". Data missingness in full eligible sample
 
 ```{r Results, echo=F, results='asis', warning=F}
 
-results_table_files <- list.files(path = "/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/", pattern = "results.csv")
+results_table_files <- list.files(path = "~/Desktop/PhD/projects/UKB_CP_MDD_lifestyle_counterfactual/output/", pattern = "results.csv")
 
 results_table_files_sorted <- c(grep("_full_", results_table_files, value = T), grep("_female_", results_table_files, value = T), grep("_male_", results_table_files, value = T))
 
@@ -266,19 +260,24 @@ comorbidity_table <- data_frame()
 ## Observation tables
 for (file in results_table_files_sorted){
   
-  table <- read.csv(paste0("/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/", file ))
+  table <- read.csv(paste0("~/Desktop/PhD/projects/UKB_CP_MDD_lifestyle_counterfactual/output/", file ))
 
   ## Remove sensitivity analysis
   table <- subset(table, table$exposure != "sensitivity_PA_low")
-  
-  ## Round numbers
-  table <- table %>% mutate_if(is.numeric, round, digits=3)
   
   ## Add astriks to significant beta
   temp <- table$Coefficient.Estimate
   table$Coefficient.Estimate = ifelse(table$p_adjust < 0.05, paste0(temp, "*"), table$Coefficient.Estimate)
   table$Coefficient.Estimate = ifelse(table$p_adjust < 0.01, paste0(temp, "**"), table$Coefficient.Estimate)
   table$Coefficient.Estimate = ifelse(table$p_adjust < 0.001, paste0(temp, "***"), table$Coefficient.Estimate)
+
+  ## Round number
+  round_with_asterisks <- function(x, digits = 3) {
+    num_part <- as.numeric(gsub("\\*", "", x))
+    stars <- gsub("[0-9.-]", "", x)
+    paste0(round(num_part, digits), stars)
+  }
+  table$Coefficient.Estimate <- round_with_asterisks(table$Coefficient.Estimate)
 
   ## Get sample
    if (grepl("female", file)){
