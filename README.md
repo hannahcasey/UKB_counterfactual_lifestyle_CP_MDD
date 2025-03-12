@@ -1,6 +1,5 @@
 # Impact of lifestyle in chronic pain and depression: a Propensity Score Analysis in UK Biobank
 
-Preregistation of analysis: [https://osf.io/q8sf6/](https://osf.io/q8sf6/)
 
 ### 1_UKB_CP_MDD_lifestyle_CA_data.R
 
