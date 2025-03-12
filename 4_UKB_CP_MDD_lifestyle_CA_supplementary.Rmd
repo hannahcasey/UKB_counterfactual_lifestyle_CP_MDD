@@ -221,7 +221,7 @@ for (plot_path in love_plot_paths_sorted){
   cat(paste0("![](", plot_path, "){height=50% width=50% }"))
   cat("\n")
   cat("<center>")
-  cat(paste0("Table S", table_counter, ". Love plot of ", exposure, " in ", sample))
+  cat(paste0("Figure S", figure_counter, ". Love plot of ", exposure, " in ", sample))
   cat("\n")
 }
 ```
@@ -232,7 +232,44 @@ for (plot_path in love_plot_paths_sorted){
 ```{r data missingness, echo=F, results='asis'}
 data_missingness <- read.csv("~/Desktop/PhD/projects/UKB_CP_MDD_lifestyle_counterfactual/output/data_missingness.csv")
 
-names(data_missingness) <- c("Variable", "Missingness (%)")
+data_missingness <- data_missingness %>%
+  filter(X != "f.eid") %>%
+   mutate(Variable = recode(X, ## Rename variables
+                     followup_chronic_pain = "chronic pain - outcome",
+                     followup_depression = "depression - outcome",
+                     comorbid_CPDep = "comorbidity group - outcome",
+                     PA_low = "low physcial activity - exposure",
+                     insufficient_sleep = "insufficient sleep - exposure",
+                     lonely = "loneliness - exposure",
+                     smoking = "smoking - exposure",
+                     high_alcohol_consumption = "high alcohol consumption - exposure",
+                     obese = "obese - matching",
+                     unhealthy_diet	= "unhealthy diet - matching",
+                     PA_low_baseline =  "low physcial activity - matching",
+                     insufficient_sleep_baseline = "insufficient sleep - matching",
+                     lonely_baseline = "loneliness - matching varialble",
+                     smoking_baseline = "smoking - matching",
+                     high_alcohol_consumption_baseline =  "high alcohol consumption - matching",
+                     obese_baseline = "obese - matching",
+                     unhealthy_diet_baseline = "unhealthy diet - matching",
+                     age = "age - matching",
+                     sex = "sex - matching",
+                     education = "education - matching",
+                     employment = "employment - matching",
+                     deprivation = "deprivation - matching",
+                     general_health = "general health - matching",
+                     living_with_partner = "living with partner - matching",
+                     chronic_pain_baseline = "chronic pain - matching",
+                     depression_baseline= "depression - matching")) %>%
+  mutate(variable_type = case_when( ## Extract category
+    grepl("outcome", Variable) ~ "Outcome",
+    grepl("exposure", Variable) ~ "Exposure",
+    grepl("matching", Variable) ~ "Matching"
+  )) %>%
+  arrange(variable_type, Variable) %>% ## Arrange variables
+  rename("Missingness (%)" = "missingness....") %>%
+  select(Variable, `Missingness (%)`)
+
 f <- flextable(data_missingness) %>%
 autofit() %>%
 fit_to_width(7) %>%
@@ -322,8 +359,7 @@ for (file in results_table_files_sorted){
 
 ## Change variable names for display
 single_disorder_table$Exposure[single_disorder_table$Exposure == "PA_low"] <- "physical activity"
-single_disorder_table$Exposure[single_disorder_table$Exposure == "too_little_sleep"] <- "insufficient sleep" 
-single_disorder_table$Exposure[single_disorder_table$Exposure == "too_much_sleep"] <- "excessive sleep" 
+single_disorder_table$Exposure[single_disorder_table$Exposure == "insufficient_sleep"] <- "insufficient sleep" 
 single_disorder_table$Exposure[single_disorder_table$Exposure == "high_alcohol_consumption"] <- "high alcohol consumption" 
 single_disorder_table$Exposure[single_disorder_table$Exposure == "smoking"] <- "smoking"
 single_disorder_table$Exposure[single_disorder_table$Exposure == "obese"] <- "obese"
@@ -331,8 +367,7 @@ single_disorder_table$Exposure[single_disorder_table$Exposure == "loneliness"] <
 single_disorder_table$Exposure[single_disorder_table$Exposure == "unhealthy_diet"] <- "unhealthy diet"
 
 comorbidity_table$Exposure[comorbidity_table$Exposure == "PA_low"] <- "physical activity"
-comorbidity_table$Exposure[comorbidity_table$Exposure == "too_little_sleep"] <- "insufficient sleep" 
-comorbidity_table$Exposure[comorbidity_table$Exposure == "too_much_sleep"] <- "excessive sleep" 
+comorbidity_table$Exposure[comorbidity_table$Exposure == "insufficient_sleep"] <- "insufficient sleep" 
 comorbidity_table$Exposure[comorbidity_table$Exposure == "high_alcohol_consumption"] <- "high alcohol consumption" 
 comorbidity_table$Exposure[comorbidity_table$Exposure == "smoking"] <- "smoking"
 comorbidity_table$Exposure[comorbidity_table$Exposure == "obese"] <- "obese"
@@ -392,6 +427,6 @@ flextable(comorbidity_table) %>%
   
 table_counter <- table_counter + 1
 ```
-Table S`r table_counter` Full results for association between lifestyle-related variables and nominla comorbidity groups in full, female and male sample. \*, \*\* and \*\*\* represent significant results at p~FDR~\<.05, p~FDR~\<.01 and p~FDR~\<.001, respectively. Significant results are highlighted in bold. 
+Table S`r table_counter` Full results for association between lifestyle-related variables and nominal comorbidity groups in full, female and male sample. \*, \*\* and \*\*\* represent significant results at p~FDR~\<.05, p~FDR~\<.01 and p~FDR~\<.001, respectively. Significant results are highlighted in bold. 
 
 

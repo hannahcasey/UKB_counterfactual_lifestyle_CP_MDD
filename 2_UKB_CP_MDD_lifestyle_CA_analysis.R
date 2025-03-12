@@ -2,7 +2,7 @@ library(nnet)
 library(lubridate)
 library(mice)
 library(nnet)
-library(MatchThem)
+library(WeightIt)
 library(ggplot2)
 library(survey)
 library(mitools)
@@ -92,7 +92,7 @@ for (exposure in exposures){
          weightthem(as.formula(f), 
                     datasets = data_eligible_full_imputed_complete_treatment, 
                     method = "glm",
-                    estimand = "ATT")
+                    estimand = "ATE")
          )
   ## Love plot
   assign(paste0(exposure, "_full_love_plot"),
@@ -127,7 +127,7 @@ for (sex in c("male", "female")){
            weightthem(as.formula(f), 
                      datasets = data_eligible_full_imputed_complete_treatment, 
                      method = "glm",
-                     estimand = "ATT")
+                     estimand = "ATE")
     )
     
     ## Love plot
@@ -163,7 +163,7 @@ for (exposure in exposures){
 
     model_formula = as.formula(paste0(outcome,
                                       "~", exposure,
-                                      "*(",paste0(matching_variables, collapse="+"), ")"))
+                                      "+(",paste0(matching_variables, collapse="+"), ")"))
     
     ## Fit linear regression model
     wimp <- get(paste0(exposure, "_full_balanced"))
@@ -180,9 +180,9 @@ for (exposure in exposures){
     ## Get marginal effetcs
     comp.imp <- lapply(fits, function(fit) {
       marginaleffects::avg_comparisons(fit, 
-                                       newdata = subset(fit$model,get(exposure) == 1),
                                        variables = exposure,
-                                       comparison = "lnoravg")
+                                       comparison = "lnoravg",
+                                       newdata = fit$data)
     })
     
     ## Pool results over imputations
@@ -201,7 +201,7 @@ for (exposure in exposures){
   }
 }
 
-## Compile results into single df
+ ## Compile results into single df
 CP_Dep_full_results <- mget(ls(pattern="_full_CP_Dep_full_results")) %>%
   bind_rows()
 
@@ -216,7 +216,7 @@ for (sex in c("male", "female")){
       ## Formula controlling for matching variables as covariates and their interactions with the exposure
       model_formula = as.formula(paste0(outcome,
                                         "~",exposure,
-                                        "*(",paste0(matching_variables, collapse="+"), ")"))
+                                        "+(",paste0(matching_variables, collapse="+"), ")"))
       
       ## Fit linear regression model
       wimp <- get(paste0(exposure, "_", sex, "_balanced"))
@@ -232,10 +232,10 @@ for (sex in c("male", "female")){
       
       ## Get marginal effetcs
       comp.imp <- lapply(fits, function(fit) {
-        marginaleffects::avg_comparisons(fit, 
-                                         newdata = subset(fit$model,get(exposure) == 1),
+        marginaleffects::avg_comparisons(fit,
                                          variables = exposure,
-                                         comparison = "lnoravg")
+                                         comparison = "lnoravg",
+                                         newdata = fit$data)
       })
       
       ## Pool results over imputations
@@ -271,7 +271,7 @@ for (exposure in exposures){
   ## Formula controlling for matching variables as covariates and their interactions with comorbidity groups
   model_formula = as.formula(paste0("comorbid_CPDep ~",
                                     exposure,
-                                    "*(",paste0(matching_variables, collapse="+"), ")"))
+                                    "+(",paste0(matching_variables, collapse="+"), ")"))
   
   ## Fit linear regression model
   wimp <- get(paste0(exposure, "_full_balanced"))
@@ -287,9 +287,9 @@ for (exposure in exposures){
   ## Get marginal effects
   comp.imp <- lapply(fits, function(fit) {
     marginaleffects::avg_comparisons(fit, 
-                                     newdata = subset(fit$model,get(exposure) == 1),
                                      variables = exposure,
-                                     comparison = "lnoravg")
+                                     comparison = "lnoravg",
+                                     newdata = fit$data)
   })
   
   
@@ -333,7 +333,7 @@ for (sex in c("male", "female")){
     ## Formula controlling for matching variables as covariates and their interactions with comorbidity groups
     model_formula = as.formula(paste0("comorbid_CPDep ~",
                                       exposure,
-                                      "*(",paste0(matching_variables, collapse="+"), ")"))
+                                      "+(",paste0(matching_variables, collapse="+"), ")"))
     
     ## Fit linear regression model
     wimp <- get(paste0(exposure, "_", sex, "_balanced"))
@@ -348,10 +348,10 @@ for (sex in c("male", "female")){
     
     ## Get marginal effetcs
     comp.imp <- lapply(fits, function(fit) {
-      marginaleffects::avg_comparisons(fit, 
-                                       newdata = subset(fit$model,get(exposure) == 1),
+      marginaleffects::avg_comparisons(fit,
                                        variables = exposure,
-                                       comparison = "lnoravg")
+                                       comparison = "lnoravg",
+                                       newdata = fit$data)
     })
     
     
@@ -391,28 +391,17 @@ for (sex in c("male", "female")){
 ## Get n total comparisons
 n_comparisons <- (nrow(CPDep_full_results) + nrow(CP_Dep_full_results))
 
-CP_Dep_full_results$p_adjust <- p.adjust(CP_Dep_full_results$`P-value`, method = "bonferroni", n = n_comparisons)
-CPDep_full_results$p_adjust <- p.adjust(CPDep_full_results$`P-value`, method = "bonferroni", n = n_comparisons)
+CP_Dep_full_results$p_adjust <- p.adjust(CP_Dep_full_results$`P.value`, method = "bonferroni", n = n_comparisons)
+CPDep_full_results$p_adjust <- p.adjust(CPDep_full_results$`P.value`, method = "bonferroni", n = n_comparisons)
 
-CP_Dep_male_results$p_adjust <- p.adjust(CP_Dep_male_results$`P-value`, method = "bonferroni", n = n_comparisons)
-CPDep_male_results$p_adjust <- p.adjust(CPDep_male_results$`P-value`, method = "bonferroni", n = n_comparisons)
+CP_Dep_male_results$p_adjust <- p.adjust(CP_Dep_male_results$`P.value`, method = "bonferroni", n = n_comparisons)
+CPDep_male_results$p_adjust <- p.adjust(CPDep_male_results$`P.value`, method = "bonferroni", n = n_comparisons)
 
-CP_Dep_female_results$p_adjust <- p.adjust(CP_Dep_female_results$`P-value`, method = "bonferroni", n = n_comparisons)
-CPDep_female_results$p_adjust <- p.adjust(CPDep_female_results$`P-value`, method = "bonferroni", n = n_comparisons)
+CP_Dep_female_results$p_adjust <- p.adjust(CP_Dep_female_results$`P.value`, method = "bonferroni", n = n_comparisons)
+CPDep_female_results$p_adjust <- p.adjust(CPDep_female_results$`P.value`, method = "bonferroni", n = n_comparisons)
 
 
 ## Save results ----
-# write.csv(CP_Dep_full_results, "/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/CP_Dep_full_results.csv", row.names = F)
-# write.csv(CPDep_full_results, "/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/CPDep_full_results.csv", row.names = F)
-# 
-# write.csv(CP_Dep_male_results, "/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/CP_Dep_male_results.csv", row.names = F)
-# write.csv(CPDep_male_results, "/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/CPDep_male_results.csv", row.names = F)
-# 
-# write.csv(CP_Dep_female_results, "/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/CP_Dep_female_results.csv", row.names = F)
-# write.csv(CPDep_female_results, "/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/CPDep_female_results.csv", row.names = F)
-# 
-# write.csv(missingness_table, "/Volumes/GenScotDepression/users/hcasey/UKB_CP_MDD_lifestyle_CA/output/data_missingness.csv", row.names = T)
-
 write.csv(CP_Dep_full_results, "~/Desktop/PhD/projects/UKB_CP_MDD_lifestyle_counterfactual/output/CP_Dep_full_results.csv", row.names = F)
 write.csv(CPDep_full_results, "~/Desktop/PhD/projects/UKB_CP_MDD_lifestyle_counterfactual/output/CPDep_full_results.csv", row.names = F)
 

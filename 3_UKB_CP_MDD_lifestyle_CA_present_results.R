@@ -179,6 +179,17 @@ exclude_pop <- boxGrob(glue("Excluded (n = {tot}):",
                        just = "left")
 
 grid.newpage()
+tiff("~/Desktop/PhD/projects/UKB_CP_MDD_lifestyle_counterfactual/writeup/WOR/figure1.tiff", units="in", width=18, height=12, res=600)
+
+# connectGrob(UKB_pop, eligible_pop, "N")
+# connectGrob(UKB_pop, exclude_pop, "L")
+# connectGrob(eligible_pop, loneliness_box, "N")
+# connectGrob(eligible_pop, obese_box, "N")
+# connectGrob(eligible_pop, insufficient_sleep_box, "N")
+# connectGrob(eligible_pop, low_PA_box, "N")
+# connectGrob(eligible_pop, unhealthy_diet_box, "N")
+# connectGrob(eligible_pop, smoking_box, "N")
+# connectGrob(eligible_pop, high_alcohol_consumption_box, "N")
 
 UKB_pop
 eligible_pop
@@ -192,15 +203,9 @@ unhealthy_diet_box
 insufficient_sleep_box
 obese_box
 
-# connectGrob(UKB_pop, eligible_pop, "N")
-# connectGrob(UKB_pop, exclude_pop, "L")
-# connectGrob(eligible_pop, loneliness_box, "N")
-# connectGrob(eligible_pop, obese_box, "N")
-# connectGrob(eligible_pop, insufficient_sleep_box, "N")
-# connectGrob(eligible_pop, low_PA_box, "N")
-# connectGrob(eligible_pop, unhealthy_diet_box, "N")
-# connectGrob(eligible_pop, smoking_box, "N")
-# connectGrob(eligible_pop, high_alcohol_consumption_box, "N")
+dev.off()
+
+
 
 ## Format results ----
 ## Add column indicating sample
@@ -339,12 +344,23 @@ CPDep_results <- CPDep_results %>%
 ## Plot chronic pain and depression ----
 ## Order exposures based on estimate in full sample
 
-CP_Dep_results$exposure <- factor(as.character(CP_Dep_results$exposure), levels = sort(unique(CP_Dep_results$exposure), decreasing = T))
+CP_Dep_results <- CP_Dep_results %>%
+  mutate(
+    outcome = factor(outcome, levels = c("Chronic Pain", "Depression")), 
+    exposure = factor(exposure, levels = sort(unique(exposure), decreasing = T))
+  )
+
 CP_Dep_results$sample <- factor(CP_Dep_results$sample , levels = c("Full", "Female", "Male"))
 
-CP_Dep_results_plot <- ggplot(CP_Dep_results[CP_Dep_results$exposure != "sensitivity_PA_low",], aes(x=exposure, y=`Coefficient.Estimate`, shape=significant,colour=as.factor(outcome))) +
-  geom_point(aes(y=`Coefficient.Estimate`),size=3, position = position_dodge(0.3)) +
-  geom_errorbar(aes(ymin=`Lower_95CI`, ymax=`Upper_95CI`), width=0, position = position_dodge(0.3)) +
+CP_Dep_results_plot <- ggplot(CP_Dep_results, aes(
+  x=exposure, 
+  y=`Coefficient.Estimate`,
+  colour=outcome,
+  shape=significant,
+  )) +
+  geom_hline(yintercept=1, linetype="dashed", color = "black") +
+  geom_point(aes(y=`Coefficient.Estimate`),size=3, position = position_dodge(0.5)) +
+  geom_errorbar(aes(ymin=`Lower_95CI`, ymax=`Upper_95CI`), width=0, position = position_dodge(0.5)) +
   theme_minimal() +
   theme(panel.spacing = unit(3, "lines"), 
         text = element_text(size = 15),
@@ -352,7 +368,6 @@ CP_Dep_results_plot <- ggplot(CP_Dep_results[CP_Dep_results$exposure != "sensiti
         legend.text = element_text(size = 12),
         legend.position="bottom",
         legend.box = "vertical") + 
-  geom_hline(yintercept=1, linetype="dashed", color = "black") +
   coord_flip() +
   facet_wrap2(vars(sample)) +
   labs(x = "",
@@ -363,38 +378,79 @@ CP_Dep_results_plot <- ggplot(CP_Dep_results[CP_Dep_results$exposure != "sensiti
 
 
 ## Plot comobidity groups
+
+## Get depression and chronic pain status
+CPDep_results$depression_status[CPDep_results$Term == "No Chronic Pain + No Depression"] <- "No"
+CPDep_results$chronic_pain_status[CPDep_results$Term == "No Chronic Pain + No Depression"] <- "No"
+
+CPDep_results$depression_status[CPDep_results$Term == "Chronic Pain + No Depression"] <- "No"
+CPDep_results$chronic_pain_status[CPDep_results$Term == "Chronic Pain + No Depression"] <- "Yes"
+
+CPDep_results$depression_status[CPDep_results$Term == "No Chronic Pain + Depression"] <- "Yes"
+CPDep_results$chronic_pain_status[CPDep_results$Term == "No Chronic Pain + Depression"] <- "No"
+
+CPDep_results$depression_status[CPDep_results$Term == "Chronic Pain + Depression"] <- "Yes"
+CPDep_results$chronic_pain_status[CPDep_results$Term == "Chronic Pain + Depression"] <- "Yes"
+
 ## Order exposures based on estimate in full sample
 CPDep_results$exposure <- factor(as.character(CPDep_results$exposure), levels = sort(unique(CPDep_results$exposure), decreasing = T))
 CPDep_results$sample <- factor(CPDep_results$sample , levels = c("Full", "Female", "Male"))
 
-CPDep_results_plot <- ggplot(CPDep_results[CPDep_results$exposure != "sensitivity_PA_low",], aes(x=exposure, y=`Coefficient.Estimate`, shape=significant,colour=as.factor(Term))) +
-  geom_point(aes(y=`Coefficient.Estimate`),size=3, position = position_dodge(0.3)) +
-  geom_errorbar(aes(ymin=`Lower_95CI`, ymax=`Upper_95CI`), width=0, position = position_dodge(0.3)) +
+CPDep_results_plot <- ggplot(CPDep_results, 
+       aes(x = exposure, 
+           y = `Coefficient.Estimate`, 
+           colour = as.factor(chronic_pain_status),
+           fill = as.factor(depression_status),
+           shape = as.factor(significant))) + 
+  geom_hline(yintercept = 1, linetype = "dashed", color = "black") +  
+  geom_errorbar(aes(ymin = `Lower_95CI`, ymax = `Upper_95CI`), 
+                width = 0, 
+                position = position_dodge(0.6)) +  
+  geom_point(size = 3, position = position_dodge(0.6), stroke = 1) +  
   theme_minimal() +
   theme(panel.spacing = unit(3, "lines"), 
         text = element_text(size = 15),
         legend.title = element_text(size = 15),
         legend.text = element_text(size = 12),
-        legend.position="bottom",
-        legend.box = "vertical") + 
-  geom_hline(yintercept=1, linetype="dashed", color = "black") +
-  coord_flip() +
-  facet_wrap2(vars(sample)) +
+        legend.position = "bottom",
+        legend.box = "horizontal") +  
+  coord_flip() +  
+  facet_wrap2(vars(sample)) +  
+  ## Labels
   labs(x = "",
        y = "Odds Ratio",
        title = "",
-       colour = "Outcome:",
-       shape = expression("P"[Adjusted] ~ " < 0.05:"))
+       colour = "Chronic Pain Status:",
+       fill = "Depression Status:",
+       shape = expression("P"[Adjusted] ~ " < 0.05:")) +  
+  ## Color (Outline) Mapping for CP Status
+  scale_color_manual(values = c(
+    "Yes" = "#F8766D",
+    "No" = "#00BFC4"
+  )) +  
+  ## Fill (Inside) Mapping for Depression Status
+  scale_fill_manual(values = c(
+    "Yes" = "#F8766D",
+    "No" = "#00BFC4"
+  )) +  
+  ## Shapes (Use solid/dashed)
+  scale_shape_manual(values = c(21, 24)) +  # Circles/Triangles
+  scale_linetype_manual(values = c("dashed", "solid")) +
+  guides(
+    colour = guide_legend(order = 1, override.aes = list(shape = 21)), 
+    fill = guide_legend(order = 2, override.aes = list(shape = 21)))
 
 
 ## Save descriptive stats and results plots ----
 write.csv(descriptive_statistics, "~/Desktop/PhD/projects/UKB_CP_MDD_lifestyle_counterfactual/output/descriptive_statistics.csv", row.names = F)
 
-jpeg("~/Desktop/PhD/projects/UKB_CP_MDD_lifestyle_counterfactual/output/CP_Dep_results_plot.jpg", width=35,height=35,units="cm",res=1000)
+setEPS()
+postscript("~/Desktop/PhD/projects/UKB_CP_MDD_lifestyle_counterfactual/writeup/WOR/figure2.eps")
 CP_Dep_results_plot
 dev.off()
 
-jpeg("~/Desktop/PhD/projects/UKB_CP_MDD_lifestyle_counterfactual/output/CPDep_results_plot.jpg",width=35,height=35,units="cm",res=1000)
+setEPS()
+postscript("~/Desktop/PhD/projects/UKB_CP_MDD_lifestyle_counterfactual/writeup/WOR/figure3.eps")
 CPDep_results_plot
 dev.off()
 
