@@ -163,7 +163,7 @@ for (exposure in exposures){
 
     model_formula = as.formula(paste0(outcome,
                                       "~", exposure,
-                                      "+(",paste0(matching_variables, collapse="+"), ")"))
+                                      "*(",paste0(matching_variables, collapse="+"), ")"))
     
     ## Fit linear regression model
     wimp <- get(paste0(exposure, "_full_balanced"))
@@ -216,7 +216,7 @@ for (sex in c("male", "female")){
       ## Formula controlling for matching variables as covariates and their interactions with the exposure
       model_formula = as.formula(paste0(outcome,
                                         "~",exposure,
-                                        "+(",paste0(matching_variables, collapse="+"), ")"))
+                                        "*(",paste0(matching_variables, collapse="+"), ")"))
       
       ## Fit linear regression model
       wimp <- get(paste0(exposure, "_", sex, "_balanced"))
@@ -271,7 +271,7 @@ for (exposure in exposures){
   ## Formula controlling for matching variables as covariates and their interactions with comorbidity groups
   model_formula = as.formula(paste0("comorbid_CPDep ~",
                                     exposure,
-                                    "+(",paste0(matching_variables, collapse="+"), ")"))
+                                    "*(",paste0(matching_variables, collapse="+"), ")"))
   
   ## Fit linear regression model
   wimp <- get(paste0(exposure, "_full_balanced"))
@@ -333,7 +333,7 @@ for (sex in c("male", "female")){
     ## Formula controlling for matching variables as covariates and their interactions with comorbidity groups
     model_formula = as.formula(paste0("comorbid_CPDep ~",
                                       exposure,
-                                      "+(",paste0(matching_variables, collapse="+"), ")"))
+                                      "*(",paste0(matching_variables, collapse="+"), ")"))
     
     ## Fit linear regression model
     wimp <- get(paste0(exposure, "_", sex, "_balanced"))
