@@ -1,0 +1,385 @@
+---
+title: "Impact of lifestyle in chronic pain and depression: a Propensity Score Analysis in UK Biobank Extended Tables"
+output: 
+  word_document:
+    reference_docx: ~/Desktop/PhD/projects/UKB_CP_MDD_brain_structure/writeup/RMD_template.docx
+---
+
+```{r setup, include=FALSE}
+library(kableExtra)
+library(dplyr)
+library(flextable)
+library(stringr)
+library(tidyr)
+library(knitr)
+library(openxlsx)
+```
+
+# Table of contents:\
+
+## 1. Supplementary Methods
+### 1.1. Treatment, outcome and matching variables in UK Biobank
+
+## 2. Supplementary Results
+### 2.1. Observation Tables
+### 2.2. Balance Tables
+### 2.3. Data missingness
+### 2.4. Results from main analysis
+
+\newpage
+# 1. Supplementary Methods
+
+\n
+## 1.1. Treatment, outcome and matching variables in UK Biobank
+
+```{r Variable table, echo=F, results='asis'}
+table_counter <- 1
+
+variable_table <- read.xlsx(xlsxFile = "~/Desktop/PhD/projects/UKB_CP_MDD_lifestyle_counterfactual/writeup/variable_table.xlsx", fillMergedCells = TRUE, colNames = TRUE)
+
+table <- flextable(variable_table) %>%
+  merge_v(j = ~ Description + Field.ID + Coding) %>% ## Merge cells
+  autofit() %>%
+  fontsize(size = 10) %>%
+  merge_h() %>%
+  bg(i = c(1, 18, 37, 41), bg = "lightgrey", part = "body") %>%
+  theme_booktabs() %>%
+  vline() %>%
+  hline()
+
+## Function to fit table to page
+FitFlextableToPage <- function(ft, pgwidth = 7){
+  ft_out <- ft %>% autofit()
+  ft_out <- width(ft_out, width = dim(ft_out)$widths*pgwidth /(flextable_dim(ft_out)$widths))
+  return(ft_out)
+}
+
+FitFlextableToPage(table)
+
+cat(paste0("Table S", table_counter, ". Table of matching, outcome and exposure variables used in UK Biobank"))
+```
+
+
+\newpage
+# 2. Supplementary Results
+
+\n
+## 2.1. Observation Tables
+
+```{r Observation tables, echo=F, results='asis'}
+
+observation_table_files <- list.files(path = "~/Desktop/PhD/projects/UKB_CP_MDD_lifestyle_counterfactual/output/balancing/", pattern = "_observation_table.csv")
+
+bal_table_files <- list.files(path = "~/Desktop/PhD/projects/UKB_CP_MDD_lifestyle_counterfactual/output/balancing/", pattern = "bal_table")
+
+## Sort table lists so order is: full, female, male
+observation_table_files_sorted <- c(grep("_full_", observation_table_files, value = T), grep("_female_", observation_table_files, value = T), grep("_male_", observation_table_files, value = T))
+
+bal_table_files_sorted <- c(grep("_full_", bal_table_files, value = T), grep("_female_", bal_table_files, value = T), grep("_male_", bal_table_files, value = T))
+
+
+## Observation tables
+for (file in observation_table_files_sorted){
+  
+  table_counter <- table_counter + 1
+  
+  table <- read.csv(paste0("~/Desktop/PhD/projects/UKB_CP_MDD_lifestyle_counterfactual/output/balancing/", file ))
+  names(table) <- c("Sample", "Non-exposure", "Exposure")
+  
+  f <- flextable(table) %>%
+  autofit() %>%
+  fit_to_width(7) %>%
+  theme_booktabs()
+   
+  ## Get sample
+   if (grepl("female", file)){
+    sample <- "female sample"
+  } else if (grepl("male", file)) {
+    sample <- "male sample"
+  } else if (grepl("full", file)) {
+    sample <- "full sample"
+  }
+  
+  ## Get exposure
+  if (grepl("PA_low_", file)){
+   exposure <- "physical activity" 
+  } else if (grepl("insufficient_sleep_", file)){
+    exposure <- "insufficient sleep" 
+  } else if (grepl("high_alcohol_consumption_", file)){
+    exposure <- "high alcohol consumption" 
+  } else if (grepl("smoking", file)){
+    exposure <- "smoking" 
+  } else if (grepl("obese_", file)){
+    exposure <- "obese" 
+  } else if (grepl("lonely_", file)){
+    exposure <- "loneliness" 
+  } else if (grepl("unhealthy_diet_", file)){
+    exposure <- "unhealthy diet" 
+  }
+  
+  flextable_to_rmd(f)
+  cat(paste0("Table S", table_counter, ". Observation table of ", exposure, " in ", sample,". Sample sizes averaged over multiple imputations."))
+  cat("\n\n\n\n")
+  
+}
+
+```
+
+\n
+## 2.2. Balance Tables
+```{r Balance tables, echo=F, results='asis'}
+
+## Balance tables
+for (file in bal_table_files_sorted){
+  
+  table_counter <- table_counter + 1
+  
+  table <- read.csv(paste0("~/Desktop/PhD/projects/UKB_CP_MDD_lifestyle_counterfactual/output/balancing/", file ))
+  names(table)[1] <- "Variables"
+  
+  ## Round numbers
+  table <- table %>% mutate_if(is.numeric, round, digits=3)
+
+  f <- flextable(table) %>%
+  autofit() %>%
+  fit_to_width(7) %>%
+  theme_booktabs()
+   
+  ## Get sample
+   if (grepl("female", file)){
+    sample <- "female sample"
+  } else if (grepl("male", file)) {
+    sample <- "male sample"
+  } else if (grepl("full", file)) {
+    sample <- "full sample"
+  }
+  
+  ## Get exposure
+  if (grepl("PA_low_", file)){
+   exposure <- "physical activity" 
+  } else if (grepl("insufficient_sleep_", file)){
+    exposure <- "insufficient sleep" 
+  } else if (grepl("high_alcohol_consumption_", file)){
+    exposure <- "high alcohol consumption" 
+  } else if (grepl("smoking", file)){
+    exposure <- "smoking" 
+  } else if (grepl("obese_", file)){
+    exposure <- "obese" 
+  } else if (grepl("lonely_", file)){
+    exposure <- "loneliness" 
+  } else if (grepl("unhealthy_diet_", file)){
+    exposure <- "unhealthy diet" 
+  }
+  
+  flextable_to_rmd(f)
+  cat(paste0("Table S", table_counter, ". Balance table of ", exposure, " in ", sample))
+  cat("\n\n\n\n")
+  
+}
+
+```
+
+\newpage
+## 2.3. Data Missingness
+
+```{r data missingness, echo=F, results='asis'}
+data_missingness <- read.csv("~/Desktop/PhD/projects/UKB_CP_MDD_lifestyle_counterfactual/output/data_missingness.csv")
+
+data_missingness <- data_missingness %>%
+  filter(X != "f.eid") %>%
+   mutate(Variable = recode(X, ## Rename variables
+                     followup_chronic_pain = "chronic pain - outcome",
+                     followup_depression = "depression - outcome",
+                     comorbid_CPDep = "comorbidity group - outcome",
+                     PA_low = "low physcial activity - exposure",
+                     insufficient_sleep = "insufficient sleep - exposure",
+                     lonely = "loneliness - exposure",
+                     smoking = "smoking - exposure",
+                     high_alcohol_consumption = "high alcohol consumption - exposure",
+                     obese = "obese - matching",
+                     unhealthy_diet	= "unhealthy diet - matching",
+                     PA_low_baseline =  "low physcial activity - matching",
+                     insufficient_sleep_baseline = "insufficient sleep - matching",
+                     lonely_baseline = "loneliness - matching varialble",
+                     smoking_baseline = "smoking - matching",
+                     high_alcohol_consumption_baseline =  "high alcohol consumption - matching",
+                     obese_baseline = "obese - matching",
+                     unhealthy_diet_baseline = "unhealthy diet - matching",
+                     age = "age - matching",
+                     sex = "sex - matching",
+                     education = "education - matching",
+                     employment = "employment - matching",
+                     deprivation = "deprivation - matching",
+                     general_health = "general health - matching",
+                     living_with_partner = "living with partner - matching",
+                     chronic_pain_baseline = "chronic pain - matching",
+                     depression_baseline= "depression - matching")) %>%
+  mutate(variable_type = case_when( ## Extract category
+    grepl("outcome", Variable) ~ "Outcome",
+    grepl("exposure", Variable) ~ "Exposure",
+    grepl("matching", Variable) ~ "Matching"
+  )) %>%
+  arrange(variable_type, Variable) %>% ## Arrange variables
+  rename("Missingness (%)" = "missingness....") %>%
+  select(Variable, `Missingness (%)`)
+
+f <- flextable(data_missingness) %>%
+autofit() %>%
+fit_to_width(7) %>%
+theme_booktabs()
+
+flextable_to_rmd(f)
+table_counter <- table_counter + 1
+cat(paste0("Table S", table_counter, ". Data missingness in full eligible sample"))
+
+```
+
+
+\newpage
+## 2.4. Results from main analysis
+
+```{r Results, echo=F, results='asis', warning=F}
+
+results_table_files <- list.files(path = "~/Desktop/PhD/projects/UKB_CP_MDD_lifestyle_counterfactual/output/", pattern = "results.csv")
+
+results_table_files_sorted <- c(grep("_full_", results_table_files, value = T), grep("_female_", results_table_files, value = T), grep("_male_", results_table_files, value = T))
+
+single_disorder_table <- data_frame()
+comorbidity_table <- data_frame()
+
+## Observation tables
+for (file in results_table_files_sorted){
+  
+  table <- read.csv(paste0("~/Desktop/PhD/projects/UKB_CP_MDD_lifestyle_counterfactual/output/", file ))
+
+  ## Remove sensitivity analysis
+  table <- subset(table, table$exposure != "sensitivity_PA_low")
+  
+  ## Add astriks to significant beta
+  temp <- table$Coefficient.Estimate
+  table$Coefficient.Estimate = ifelse(table$p_adjust < 0.05, paste0(temp, "*"), table$Coefficient.Estimate)
+  table$Coefficient.Estimate = ifelse(table$p_adjust < 0.01, paste0(temp, "**"), table$Coefficient.Estimate)
+  table$Coefficient.Estimate = ifelse(table$p_adjust < 0.001, paste0(temp, "***"), table$Coefficient.Estimate)
+
+  ## Round number
+  round_with_asterisks <- function(x, digits = 3) {
+    num_part <- as.numeric(gsub("\\*", "", x))
+    stars <- gsub("[0-9.-]", "", x)
+    paste0(round(num_part, digits), stars)
+  }
+  table$Coefficient.Estimate <- round_with_asterisks(table$Coefficient.Estimate)
+
+  ## Get sample
+   if (grepl("female", file)){
+    sample <- "Female Sample"
+  } else if (grepl("male", file)) {
+    sample <- "Male Sample"
+  } else if (grepl("full", file)) {
+    sample <- "Full Sample"
+  }
+  
+  ## Combine all samples into single dataframe
+   if (grepl("CP_Dep_", file)){
+     
+     ## Simplify and rename columns
+       table <- table %>%
+         select(Term, Coefficient.Estimate, outcome) %>%
+         rename(Exposure = Term,
+                {{sample}}:=Coefficient.Estimate)
+     
+     if(length(single_disorder_table) == 0){
+       single_disorder_table <- table
+       } else{
+         single_disorder_table <- left_join(single_disorder_table, table, by = c("Exposure", "outcome"))
+       }
+   } else{
+     
+     ## Simplify and rename columns
+     table <- table %>%
+       select(Term, exposure, Coefficient.Estimate) %>%
+       rename(`Nominal Group` = Term,
+              Exposure = exposure,
+              {{sample}}:=Coefficient.Estimate)
+
+          if(length(comorbidity_table) == 0){
+       comorbidity_table <- table
+       } else{
+         comorbidity_table <- left_join(comorbidity_table, table, by = c("Exposure", "Nominal Group"))
+       }
+   }
+}
+ 
+
+## Change variable names for display
+single_disorder_table$Exposure[single_disorder_table$Exposure == "PA_low"] <- "physical activity"
+single_disorder_table$Exposure[single_disorder_table$Exposure == "insufficient_sleep"] <- "insufficient sleep" 
+single_disorder_table$Exposure[single_disorder_table$Exposure == "high_alcohol_consumption"] <- "high alcohol consumption" 
+single_disorder_table$Exposure[single_disorder_table$Exposure == "smoking"] <- "smoking"
+single_disorder_table$Exposure[single_disorder_table$Exposure == "obese"] <- "obese"
+single_disorder_table$Exposure[single_disorder_table$Exposure == "loneliness"] <- "loneliness"
+single_disorder_table$Exposure[single_disorder_table$Exposure == "unhealthy_diet"] <- "unhealthy diet"
+
+comorbidity_table$Exposure[comorbidity_table$Exposure == "PA_low"] <- "physical activity"
+comorbidity_table$Exposure[comorbidity_table$Exposure == "insufficient_sleep"] <- "insufficient sleep" 
+comorbidity_table$Exposure[comorbidity_table$Exposure == "high_alcohol_consumption"] <- "high alcohol consumption" 
+comorbidity_table$Exposure[comorbidity_table$Exposure == "smoking"] <- "smoking"
+comorbidity_table$Exposure[comorbidity_table$Exposure == "obese"] <- "obese"
+comorbidity_table$Exposure[comorbidity_table$Exposure == "loneliness"] <- "loneliness"
+comorbidity_table$Exposure[comorbidity_table$Exposure == "unhealthy_diet"] <- "unhealthy diet"
+  
+## Split individual disorder results into seperate groups
+CP_table <- single_disorder_table %>%
+  filter(outcome == "followup_chronic_pain") %>%
+  select(-outcome)
+
+MDD_table <- single_disorder_table %>%
+  filter(outcome == "followup_depression") %>%
+  select(-outcome)
+  
+```
+
+```{r CP Results, echo=F, results='asis', warning=F}
+## Display imagees
+flextable(CP_table) %>%
+  autofit() %>%
+  fit_to_width(7) %>%
+  bold(i = ~ grepl("\\*", CP_table$`Full Sample`), j = "Full Sample") %>%
+  bold(~ grepl("\\*", CP_table$`Female Sample`), j = "Female Sample") %>%
+  bold(~ grepl("\\*", CP_table$`Male Sample`), j = "Male Sample")
+  
+table_counter <- table_counter + 1
+
+```
+Table S`r table_counter` Full results for association between lifestyle-related variables and chronic pain in full, female and male sample. \*, \*\* and \*\*\* represent significant results at p~FDR~\<.05, p~FDR~\<.01 and p~FDR~\<.001, respectively. Significant results are highlighted in bold.
+
+\newpage
+
+```{r Dep Results, echo=F, results='asis', warning=F}
+## Display imagees
+flextable(MDD_table) %>%
+  autofit() %>%
+  fit_to_width(7) %>%
+  bold(i = ~ grepl("\\*", MDD_table$`Full Sample`), j = "Full Sample") %>%
+  bold(~ grepl("\\*", MDD_table$`Female Sample`), j = "Female Sample") %>%
+  bold(~ grepl("\\*", MDD_table$`Male Sample`), j = "Male Sample")
+  
+table_counter <- table_counter + 1
+```
+Table S`r table_counter` Full results for association between lifestyle-related variables and depression in full, female and male sample. \*, \*\* and \*\*\* represent significant results at p~FDR~\<.05, p~FDR~\<.01 and p~FDR~\<.001, respectively. Significant results are highlighted in bold.
+
+\newpage
+
+```{r Comorbidity Results, echo=F, results='asis'}
+## Display imagees
+flextable(comorbidity_table) %>%
+  autofit() %>%
+  fit_to_width(7) %>%
+  bold(i = ~ grepl("\\*", comorbidity_table$`Full Sample`), j = "Full Sample") %>%
+  bold(~ grepl("\\*", comorbidity_table$`Female Sample`), j = "Female Sample") %>%
+  bold(~ grepl("\\*", comorbidity_table$`Male Sample`), j = "Male Sample")
+  
+table_counter <- table_counter + 1
+```
+Table S`r table_counter` Full results for association between lifestyle-related variables and nominal comorbidity groups in full, female and male sample. \*, \*\* and \*\*\* represent significant results at p~FDR~\<.05, p~FDR~\<.01 and p~FDR~\<.001, respectively. Significant results are highlighted in bold. 
+
+

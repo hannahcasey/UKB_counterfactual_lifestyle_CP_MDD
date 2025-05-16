@@ -1,0 +1,80 @@
+---
+title: "Impact of lifestyle in chronic pain and depression: a Propensity Score Analysis in UK Biobank Extended Figures"
+output: 
+  word_document:
+    reference_docx: ~/Desktop/PhD/projects/UKB_CP_MDD_brain_structure/writeup/RMD_template.docx
+---
+
+```{r setup, include=FALSE}
+library(kableExtra)
+library(dplyr)
+library(flextable)
+library(stringr)
+library(tidyr)
+library(knitr)
+library(openxlsx)
+```
+
+# Table of contents:\
+
+## 1. Supplementary Results
+### 1.1. Love Plots
+
+\newpage
+# 1. Supplementary Results
+
+\n
+## 1.1. Love Plots
+
+```{r Love plots, echo=F, results='asis'}
+
+love_plot_paths <- list.files("~/Desktop/PhD/projects/UKB_CP_MDD_lifestyle_counterfactual/output/balancing",full.names = T, pattern = "love_plot")
+
+love_plot_paths_sorted <- c(grep("_full_", love_plot_paths, value = T), grep("_female_", love_plot_paths, value = T), grep("_male_", love_plot_paths, value = T))
+  
+figure_counter <- 0
+
+for (plot_path in love_plot_paths_sorted){
+
+  figure_counter <- figure_counter + 1
+  
+  file <- basename(plot_path)
+
+  ## Get sample
+  
+  if (grepl("male", file)){
+    sample <- "male sample"
+    } 
+  if (grepl("female", file)) {
+    sample <- "female sample"
+    }
+  if (grepl("full", file)) {
+    sample <- "full sample"
+    }
+
+  ## Get exposure
+  if (grepl("PA_low_", file)){
+   exposure <- "physical activity" 
+  } else if (grepl("insufficient_sleep_", file)){
+    exposure <- "insufficient sleep" 
+  } else if (grepl("high_alcohol_consumption_", file)){
+    exposure <- "high alcohol consumption" 
+  } else if (grepl("smoking", file)){
+    exposure <- "smoking" 
+  } else if (grepl("obese_", file)){
+    exposure <- "obese" 
+  } else if (grepl("lonely_", file)){
+    exposure <- "loneliness" 
+  } else if (grepl("unhealthy_diet_", file)){
+    exposure <- "unhealthy diet" 
+  }
+  
+  cat("<center>")
+  cat("\n")
+  cat(paste0("![](", plot_path, "){height=50% width=50% }"))
+  cat("\n")
+  cat("<center>")
+  cat(paste0("Figure S", figure_counter, ". Love plot of ", exposure, " in ", sample))
+  cat("\n")
+}
+```
