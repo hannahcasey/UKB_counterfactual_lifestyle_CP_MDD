@@ -445,9 +445,9 @@ CPDep_results_plot <- ggplot(CPDep_results,
 write.csv(descriptive_statistics, "~/Desktop/PhD/projects/UKB_CP_MDD_lifestyle_counterfactual/output/descriptive_statistics.csv", row.names = F)
 
 ggsave(
-  filename = "~/Desktop/PhD/projects/UKB_CP_MDD_lifestyle_counterfactual/writeup/WOR/figure2.tiff",
+  filename = "~/Desktop/PhD/projects/UKB_CP_MDD_lifestyle_counterfactual/writeup/WOR/figures/figure2.jpg",
   plot = CP_Dep_results_plot,
-  device = "tiff",
+  device = "jpeg",
   dpi = 600,           # High-resolution for publication
   width = 10,
   height = 8,
@@ -455,11 +455,11 @@ ggsave(
 )
 
 ggsave(
-  filename = "~/Desktop/PhD/projects/UKB_CP_MDD_lifestyle_counterfactual/writeup/WOR/figure3.tiff",
+  filename = "~/Desktop/PhD/projects/UKB_CP_MDD_lifestyle_counterfactual/writeup/WOR/figures/figure3.jpg",
   plot = CPDep_results_plot,
-  device = "tiff",
+  device = "jpeg",
   dpi = 600,           # High-resolution for publication
-  width = 10,
+  width = 12,
   height = 10,
   units = "in"
 )
