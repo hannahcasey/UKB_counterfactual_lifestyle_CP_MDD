@@ -41,7 +41,7 @@ for (observation_table in sort(observation_table_files[!grepl("sensitivity_PA_lo
   
   ## Get exposure
   if (grepl("PA_low_", observation_table)){
-    exposure <- "Pysical activity" 
+    exposure <- "Physical Activity" 
     box_name <- "low_PA_box" 
   } else if (grepl("too_much_sleep", observation_table)){
     exposure <- "Excessive Sleep" 
